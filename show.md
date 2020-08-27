@@ -1,0 +1,25 @@
+##数据库的初始化
+1、创建一个数据库
+2、使用`sequelize cli` 初始化项目的 数据库配置信息
+		`npx sequelize init`
+3、生成模型文件
+	3.1、migrate文件
+	3.2、model 文件
+	`npx sequelize model:generate --name Todo 
+--attributes name:string,deadline:date,content:string `
+
+//收款表
+yarn sequelize model:generate --name zycollection --attributes month:string,amount_received:decimal,amount_receivable:decimal,invoice_amount:decimal,contractid:integer
+
+//单位表
+yarn sequelize model:generate --name zyunit --attributes unit_name:string,unit_type:string,
+unit_contacts:string,unit_tel:string,unit_add:string
+
+//水电费表
+yarn sequelize model:generate --name waterele --attributes check_month:string,property_add:string,
+get_month:string,elecol_amount:decimal,elecheck_amount:decimal,elereceived_amount:decimal,watercol_amount:decimal,
+watercheck_amount:decimal,waterreceived_amount:decimal,is_rent:string
+
+4、持久化，模型对应的数据库表
+	`npx sequelize db:migrate 
+    yarn sequelize db:migrate
