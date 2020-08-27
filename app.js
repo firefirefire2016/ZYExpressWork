@@ -62,13 +62,6 @@ app.use('/zyWaterEle', zyWaterEleRouter);
 
  
 
-// app.get('/list',async (req,res)=>{
-//     let list = await modelS.testUser.findAll();
-//     res.json({
-//       list
-//     })
-// })
-
 
 
 
