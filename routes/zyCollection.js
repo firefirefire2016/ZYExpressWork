@@ -16,7 +16,7 @@ router.all('/', function(req, res, next) {
   res.json({
     list:{
       id:1,
-      result:'请求收款表!'
+      result:'请求收款表!试试'
     }
   })
 })
