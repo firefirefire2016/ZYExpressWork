@@ -178,7 +178,8 @@ router.all('/list/:status/:page/:limit',async (req,res)=>{
       res.json({
         code:0,
         rows,
-        msg:'成功获得条件列表,共' + count + '条记录'
+        total:count,
+        msg:'成功获得条件列表,共' + rows.length + '条记录'
       })
     }else{
       const {count,rows} = await modelS.zycontract.findAndCountAll({
