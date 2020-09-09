@@ -172,7 +172,11 @@ router.all('/list/:status/:page/:limit',async (req,res)=>{
       const {count,rows} = await modelS.zycontract.findAndCountAll({
         where,
         offset,
-        limit
+        limit,
+        order: [
+          ['updatedAt','DESC'],
+          ['createdAt','DESC']
+        ]
       })
       console.log(rows);
       res.json({
@@ -184,7 +188,11 @@ router.all('/list/:status/:page/:limit',async (req,res)=>{
     }else{
       const {count,rows} = await modelS.zycontract.findAndCountAll({
         where,
-        offset
+        offset,
+        order: [
+          ['updatedAt','DESC'],
+          ['createdAt','DESC']
+        ]
       })
       console.log(rows);
       res.json({
