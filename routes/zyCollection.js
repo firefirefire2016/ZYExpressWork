@@ -169,9 +169,17 @@ router.all('/list/:status/:page/:limit',async (req,res)=>{
   //1.通过合同id找收款表
   try {
     let {status,page,limit} = req.params;
-    limit = parseInt(limit);
+    let {contractid} = req.body;
+    let offset = {};
+
+    if(limit == -1){
+      limit = {}
+    }else{
+      limit = parseInt(limit);
+      offset = (page-1)*limit;
+    }
+    
     status = parseInt(status);
-    let offset = (page-1)*limit;
     let where = {};
     if(status != 0){
       if(status === 3){
@@ -182,6 +190,12 @@ router.all('/list/:status/:page/:limit',async (req,res)=>{
         where.status = status;
       }        
     }
+
+    if(contractid){
+      where.contractid = contractid;
+    }
+    
+
     const {count,rows} = await modelS.zycollection.findAndCountAll({
           where,
           offset,
@@ -203,6 +217,7 @@ router.all('/list/:status/:page/:limit',async (req,res)=>{
     res.json({
       code:0,
       rows,
+      total:count,
       msg:'成功获得条件列表,共' + count + '条记录'
     })
   } catch (error) {

@@ -153,11 +153,35 @@ router.all('/list/:status/:page/:limit',async (req,res)=>{
   //状态 1：表示正常 -1：表示已删除 0：表示全部 2:表示终止 3:除了删除的
   try {
     
-    let {status,page,limit} = req.params; 
+    let {status,page,limit} = req.params;
+    let {contractno,renttype,startdate,enddate} = req.body;
     limit = parseInt(limit);
     status = parseInt(status);
     let offset = (page-1)*limit;
     let where = {};
+
+    if(contractno != null ){
+      where.contractno = contractno;
+    }
+    
+    if(renttype != null){
+   //   where.renttype = {[Op.gte]: renttype};
+      where.renttype = renttype;
+    }
+
+    if(startdate != null ){
+      //startdate=startdate.replace(/-/g,"");
+      // startdate=startdate.replace('-',"");
+      // startdate = parseInt(startdate);
+      where.startdate = {[Op.gte]: startdate};
+    }
+    
+    if(enddate != null){
+      where.enddate = {[Op.lte]: enddate};
+    }
+    
+
+
     
     if(status != 0){
         if(status === 3){
