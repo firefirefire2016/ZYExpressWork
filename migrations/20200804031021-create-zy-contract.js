@@ -29,22 +29,16 @@ module.exports = {
       rightno: {
         type: Sequelize.STRING
       },
-      tenant:{
+      tenant: {
         type: Sequelize.STRING,
       },
-      tel_tenant:{
+      tel_tenant: {
         type: Sequelize.STRING,
       },
-      deposit:{
+      deposit: {
         type: Sequelize.STRING,
-      },
-      contractname: {
-        type: Sequelize.STRING
       },
       address: {
-        type: Sequelize.STRING
-      },
-      coldate: {
         type: Sequelize.STRING
       },
       createdAt: {
@@ -58,7 +52,31 @@ module.exports = {
       status: {
         allowNull: false,
         type: Sequelize.INTEGER
-      }       
+      },
+      rentcycle: {
+        type: Sequelize.STRING
+      },//付款周期
+      firstdate: {
+        type: Sequelize.STRING
+      },//首期收款日
+      signdate: {
+        type: Sequelize.STRING
+      },//签订日期
+      agentman: {
+        type: Sequelize.STRING
+      },//对接人 
+      rentmode: {
+        type: Sequelize.STRING
+      },//租金模式 
+      needcopy: {
+        type: Sequelize.STRING
+      },//是否需要抄表
+      quitdate: {
+        type: Sequelize.STRING
+      },//退租日期
+      property_name: {
+        type: Sequelize.STRING
+      }//物业名称     
     });
   },
   down: async (queryInterface, Sequelize) => {

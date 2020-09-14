@@ -81,7 +81,9 @@ router.all('/update',async (req,res)=>{
     }
     res.json({
       //rows,
-      message:'更新记录成功'
+      code:0,
+      date:target,
+      msg:'更新记录成功'
     })
     console.log(target);
   }
@@ -102,7 +104,7 @@ router.all('/find/:id',async (req,res)=>{
     res.json({
       code:0,
       data:target,
-      message:'成功获取'
+      msg:'成功获取'
     })
     console.log(target);
   }
@@ -111,9 +113,10 @@ router.all('/find/:id',async (req,res)=>{
   }
 })
 
+//修改目标状态及应收款，比如已删除
 router.all('/delbyContract',async(req,res)=>{
     try{
-      let {status,id} = req.body;
+      let {status,id,month_rent} = req.body;
       let target = await modelS.zycollection.findAll({
             where:{
               contractid : id
@@ -123,14 +126,15 @@ router.all('/delbyContract',async(req,res)=>{
       target.forEach(async collection => {
         if(collection && collection.status != status){
           collection = await collection.update({
-            status
+            status,
+            amount_receivable:month_rent
           })
         }
       });
       
       res.json({
         code: 0,
-        message:'成功更新状态为' + status
+        msg:'成功更新状态为' + status
       })
       //console.log(target);
     }catch(error){
@@ -155,7 +159,7 @@ router.all('/update_status',async (req,res)=>{
     }
     res.json({
       code: 0,
-      message:'成功更新状态为' + status
+      msg:'成功更新状态为' + status
     })
     console.log(target);
   }
@@ -172,13 +176,25 @@ router.all('/list/:status/:page/:limit',async (req,res)=>{
     let {contractid} = req.body;
     let offset = {};
 
-    if(limit == -1){
-      limit = {}
-    }else{
-      limit = parseInt(limit);
-      offset = (page-1)*limit;
+    let where2 = {};
+
+    let {month_rent,tenant} = req.body;
+
+    let {year,month,amount_received,invoice_amount} = req.body;
+
+    if(month_rent){
+      month_rent = parseFloat(month_rent);
+      where2.month_rent = {
+        [Op.gte]:month_rent
+      }
     }
-    
+
+    if(tenant){
+      where2.tenant = {
+        [Op.substring]:tenant
+      }
+    }
+
     status = parseInt(status);
     let where = {};
     if(status != 0){
@@ -191,19 +207,63 @@ router.all('/list/:status/:page/:limit',async (req,res)=>{
       }        
     }
 
+    if(year){
+      year = parseInt(year);
+      where.year = year;
+    }
+
+    if(month){
+      month = parseInt(month);
+      where.month = month;
+    }
+
+    if(amount_received){
+      amount_received = parseFloat(amount_received);
+      where.amount_received = {
+        [Op.gte]:amount_received
+      }
+    }
+
+    if(invoice_amount){
+      invoice_amount = parseFloat(invoice_amount);
+      where.invoice_amount = {
+        [Op.gte]:invoice_amount
+      }
+    }
+
+
+
     if(contractid){
       where.contractid = contractid;
     }
+
+
     
+
+    if(limit == -1){
+      const amount = await modelS.zycollection.count({
+        where
+      });
+      limit = amount;
+      limit = parseInt(limit);
+      offset = (page-1)*limit;
+    }else{
+      limit = parseInt(limit);
+      offset = (page-1)*limit;
+    }    
 
     const {count,rows} = await modelS.zycollection.findAndCountAll({
           where,
           offset,
           limit,
-          include:modelS.zycontract,
+          //include:modelS.zycontract,
+          include:[{
+            model:modelS.zycontract,
+            where:where2
+          }],
           order:[
-            [Sequelize.cast(Sequelize.col('year'), 'SIGNED'), 'ASC'],
-            [Sequelize.cast(Sequelize.col('month'), 'SIGNED'), 'ASC']
+            [Sequelize.cast(Sequelize.col('year'), 'SIGNED'), 'DESC'],
+            [Sequelize.cast(Sequelize.col('month'), 'SIGNED'), 'DESC']
           ]
           // include: [{
           //   model: modelS.zycontract,

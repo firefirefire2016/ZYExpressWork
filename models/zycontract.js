@@ -26,13 +26,19 @@ module.exports = (sequelize, DataTypes) => {
     renttype: DataTypes.STRING,
     month_rent: DataTypes.STRING,
     rightno: DataTypes.STRING,
-    tenant: DataTypes.STRING,
-    tel_tenant: DataTypes.STRING,
+    tenant: DataTypes.STRING,//客户名称
+    tel_tenant: DataTypes.STRING,//联系电话
     deposit: DataTypes.STRING,
-    contractname: DataTypes.STRING,
-    address: DataTypes.STRING,
-    coldate: DataTypes.STRING,
-    status:DataTypes.INTEGER
+    address: DataTypes.STRING,//地址
+    status:DataTypes.INTEGER,
+    rentcycle: DataTypes.STRING,//付款周期
+    firstdate:DataTypes.STRING,//首期收款日
+    signdate:DataTypes.STRING,//签订日期
+    agentman:DataTypes.STRING,//对接人 
+    rentmode:DataTypes.STRING,//租金模式 
+    needcopy:DataTypes.STRING,//是否需要抄表
+    quitdate:DataTypes.STRING,//退租日期
+    property_name:DataTypes.STRING,//物业名称
   }, {
 
     sequelize,

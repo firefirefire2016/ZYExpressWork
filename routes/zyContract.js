@@ -36,19 +36,21 @@ router.all('/list',async (req,res)=>{
 
 router.all('/create',async (req,res)=>{
   try{
-    let {contractno,startdate,enddate,renttype,rightno,rentdate,month_rent,deposit,tenant,tel_tenant} = req.body;
-    let contract = await modelS.zycontract.create({    
-        contractno,
-        startdate,
-        enddate,
-        rentdate,
-        renttype,
-        rightno,
-        deposit,
-        tenant,
-        tel_tenant,
-        month_rent,
-        status:1
+    let target = {contractno,startdate,enddate,renttype,rightno,
+      rentdate,month_rent,deposit,tenant,tel_tenant,
+      rentcycle,firstdate,signdate,agentman,rentmode,
+      needcopy,quitdate,property_name,address} = req.body;
+    // rentcycle: DataTypes.STRING,//付款周期
+    // firstdate:DataTypes.STRING,//首期收款日
+    // signdate:DataTypes.STRING,//签订日期
+    // agentman:DataTypes.STRING,//对接人 
+    // rentmode:DataTypes.STRING,//租金模式 
+    // needcopy:DataTypes.STRING,//是否需要抄表
+    // quitdate:DataTypes.STRING,//退租日期
+    // property_name:DataTypes.STRING,//物业名称
+    let contract = await modelS.zycontract.create({   
+        ...target,
+         status:1,
     })
     console.log(contract.dataValues);
     res.json({
@@ -68,33 +70,32 @@ router.all('/create',async (req,res)=>{
 
 router.all('/update',async (req,res)=>{
   try{
-    let {contractno,startdate,enddate,renttype,rightno,id,rentdate,month_rent,deposit,tenant,tel_tenant} = req.body;
+    let newtarget = {contractno,startdate,enddate,renttype,rightno,
+      rentdate,month_rent,deposit,tenant,tel_tenant,
+      rentcycle,firstdate,signdate,agentman,rentmode,
+      needcopy,quitdate,property_name,address} = req.body;
     let target = await modelS.zycontract.findOne({
           where:{
-            id
+            id:newtarget.id
           }
     })
     //如果存在则更新
     if(target){
       target = await target.update({
-        contractno,
-        startdate,
-        enddate,
-        rentdate,
-        renttype,
-        deposit,
-        tenant,
-        tel_tenant,
-        month_rent,
-        rightno
+        ...newtarget
       })
-
+      res.json({
+        code:0,
+        msg:'更新记录成功'
+      })
     }
-    res.json({
-      //rows,
-      code:0,
-      msg:'更新记录成功'
-    })
+    else{
+      res.json({
+        code:1,
+        msg:'更新记录出错'
+      })
+    }
+    
     console.log(target);
   }
   catch(error){
@@ -114,7 +115,7 @@ router.all('/find/:id',async (req,res)=>{
     res.json({
       code:0,
       data:target,
-      message:'成功获取'
+      msg:'成功获取'
     })
     console.log(target);
   }
@@ -135,7 +136,8 @@ router.all('/update_status',async (req,res)=>{
     //如果存在则更新为状态
     if(target && target.status != status){
       target = await target.update({
-        status
+        status,
+        
       })
     }
     res.json({
@@ -161,7 +163,9 @@ router.all('/list/:status/:page/:limit',async (req,res)=>{
     let where = {};
 
     if(contractno != null ){
-      where.contractno = contractno;
+      where.contractno = {
+          [Op.substring]:contractno
+      }
     }
     
     if(renttype != null){
