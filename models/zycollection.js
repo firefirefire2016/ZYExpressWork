@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
     amount_receivable: DataTypes.DECIMAL,
     invoice_amount: DataTypes.DECIMAL,
     contractid: DataTypes.INTEGER,
-    status:DataTypes.INTEGER
+    contract_status:DataTypes.INTEGER//合同状态
   }, {
     sequelize,
     modelName: 'zycollection',

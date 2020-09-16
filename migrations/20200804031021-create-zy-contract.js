@@ -49,7 +49,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       },
-      status: {
+      contract_status: {
         allowNull: false,
         type: Sequelize.INTEGER
       },

@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     tel_tenant: DataTypes.STRING,//联系电话
     deposit: DataTypes.STRING,
     address: DataTypes.STRING,//地址
-    status:DataTypes.INTEGER,
+    contract_status:DataTypes.INTEGER,//合同状态
     rentcycle: DataTypes.STRING,//付款周期
     firstdate:DataTypes.STRING,//首期收款日
     signdate:DataTypes.STRING,//签订日期

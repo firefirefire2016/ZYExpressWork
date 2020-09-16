@@ -42,7 +42,7 @@ router.all('/create',async (req,res)=>{
         amount_received,
         amount_receivable,
         invoice_amount,
-        status:1
+        contract_status:1
     })
     console.log(collection);
     res.json({
@@ -62,7 +62,8 @@ router.all('/create',async (req,res)=>{
 
 router.all('/update',async (req,res)=>{
   try{
-    let {contractid,month,amount_received,amount_receivable,invoice_amount,id} = req.body;
+    let newTarget = {contractid,month,amount_received,amount_receivable,
+      invoice_amount,id,contract_status} = req.body;
     let target = await modelS.zycollection.findOne({
           where:{
             id
@@ -71,11 +72,7 @@ router.all('/update',async (req,res)=>{
     //如果存在则更新
     if(target){
       target = await target.update({
-        contractid,
-        month,
-        amount_received,
-        amount_receivable,
-        invoice_amount
+        ...newTarget
       })
 
     }
@@ -116,7 +113,7 @@ router.all('/find/:id',async (req,res)=>{
 //修改目标状态及应收款，比如已删除
 router.all('/delbyContract',async(req,res)=>{
     try{
-      let {status,id,month_rent} = req.body;
+      let {contract_status,id,month_rent} = req.body;
       let target = await modelS.zycollection.findAll({
             where:{
               contractid : id
@@ -124,9 +121,9 @@ router.all('/delbyContract',async(req,res)=>{
       })
       //如果存在则更新为状态
       target.forEach(async collection => {
-        if(collection && collection.status != status){
+        if(collection && collection.contract_status != contract_status){
           collection = await collection.update({
-            status,
+            contract_status,
             amount_receivable:month_rent
           })
         }
@@ -134,7 +131,7 @@ router.all('/delbyContract',async(req,res)=>{
       
       res.json({
         code: 0,
-        msg:'成功更新状态为' + status
+        msg:'成功更新状态为' + contract_status
       })
       //console.log(target);
     }catch(error){
@@ -145,21 +142,21 @@ router.all('/delbyContract',async(req,res)=>{
 //修改目标状态，比如已删除
 router.all('/update_status',async (req,res)=>{
   try{
-    let {status,id} = req.body;
+    let {contract_status,id} = req.body;
     let target = await modelS.zycollection.findOne({
           where:{
             id
           }
     })
     //如果存在则更新为状态
-    if(target && target.status != status){
+    if(target && target.contract_status != contract_status){
       target = await target.update({
-        status
+        contract_status
       })
     }
     res.json({
       code: 0,
-      msg:'成功更新状态为' + status
+      msg:'成功更新状态为' + contract_status
     })
     console.log(target);
   }
@@ -168,12 +165,12 @@ router.all('/update_status',async (req,res)=>{
   }
 })
 
-router.all('/list/:status/:page/:limit',async (req,res)=>{
-  //状态 1：表示正常 -1：表示已删除 0：表示全部 2:表示终止 3:除了删除的
+router.all('/list/:page/:limit',async (req,res)=>{
+  //合同状态 0:进行中 1：作废(已终止) 2:草稿 3:退租中 4:退租待结算 5:已到期 -1:已删除 -2:除了删除的
   //1.通过合同id找收款表
   try {
-    let {status,page,limit} = req.params;
-    let {contractid} = req.body;
+    let {page,limit} = req.params;
+    let {contractid,contract_status} = req.body;
     let offset = {};
 
     let where2 = {};
@@ -195,16 +192,20 @@ router.all('/list/:status/:page/:limit',async (req,res)=>{
       }
     }
 
-    status = parseInt(status);
+    if(!contract_status && contract_status !== 0){
+      contract_status = -2;
+    }
+
+    contract_status = parseInt(contract_status);
     let where = {};
-    if(status != 0){
-      if(status === 3){
-        where.status =  {
-          [Op.or]: [1, 2]
-        }
-      }else{
-        where.status = status;
-      }        
+
+    //如果状态为不要删除的
+    if (contract_status === -2) {
+      where.contract_status = {
+        [Op.ne]: -1
+      }
+    } else {
+      where.contract_status = contract_status;
     }
 
     if(year){
