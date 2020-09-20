@@ -157,21 +157,24 @@ router.all('/update_status', async (req, res) => {
 })
 
 router.all('/list/:page/:limit', async (req, res) => {
-  //状态 1：表示正常 -1：表示已删除 0：表示全部 2:表示终止 3:除了删除的
-  //合同状态 0:作废(已终止) 1：进行中 2:草稿 3:退租中 4:退租待结算 5:已到期 -1:已删除 -2:除了删除的
+  //状态 1：表示正常 -1：表示已删除 -2:除了删除的
+  //合同状态 0:未生效 1：已生效 2:已到期 3:已失效 -1:已删除 -2:除了删除的
   //contract_status:['执行中','作废(已终止)','草稿','退租中','退租待结算','已到期'],
   try {
 
     let { page, limit} = req.params;
-    let { contractno, renttype, startdate, enddate,agentman,tenant,address,contract_status} = req.body;
-    limit = parseInt(limit);
+    let { contractno, renttype, startdate, enddate,agentman,
+      tenant,address,contract_status} = req.body;
+
+    
+
 
     if(!contract_status && contract_status !== 0){
       contract_status = -2;
     }
 
     contract_status = parseInt(contract_status);
-    let offset = (page - 1) * limit;
+
     let where = {};
 
     if(agentman){
@@ -223,6 +226,18 @@ router.all('/list/:page/:limit', async (req, res) => {
       }
     } else {
         where.contract_status = contract_status;
+    }
+
+    if (limit == -1) {
+      const amount = await modelS.zycontract.count({
+        where
+      });
+      limit = amount;
+      limit = parseInt(limit);
+      offset = (page - 1) * limit;
+    } else {
+      limit = parseInt(limit);
+      offset = (page - 1) * limit;
     }
 
 
