@@ -11,6 +11,16 @@
 //收款表
 yarn sequelize model:generate --name zycollection --attributes month:string,amount_received:decimal,amount_receivable:decimal,invoice_amount:decimal,contractid:integer
 
+//字典表
+yarn sequelize model:generate --name zysysdict --attributes dicttype:string,dicttypecode:string,
+dictcode:string,dictvalue:string,remarks:string,status:integer
+
+//产权表
+yarn sequelize model:generate --name zypropertyright --attributes simpleaddress:string,address:string,
+owner:string,rightno:string,feature:string,type:string,community:string,commonstate:string,unitno:string,
+usereason:string,rightfeature:string,area:string,insidearea:string,limitdate:string,otherstatus:string,
+remarks:string,status:string
+
 //单位表
 yarn sequelize model:generate --name zyunit --attributes unit_name:string,unit_type:string,
 unit_contacts:string,unit_tel:string,unit_add:string
