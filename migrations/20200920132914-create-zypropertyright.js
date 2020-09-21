@@ -23,7 +23,7 @@ module.exports = {
       feature: {
         type: Sequelize.STRING
       },
-      type: {
+      righttype: {
         type: Sequelize.STRING
       },
       community: {
@@ -56,7 +56,7 @@ module.exports = {
       remarks: {
         type: Sequelize.STRING
       },
-      status: {
+      property_status: {
         type: Sequelize.STRING
       },
       createdAt: {

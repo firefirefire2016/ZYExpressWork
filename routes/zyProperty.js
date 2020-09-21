@@ -33,20 +33,26 @@ router.all('/list',async (req,res)=>{
 router.all('/create',async (req,res)=>{
   try{
     let newTarget = {simpleaddress,address,owner,rightno,
-      feature,type,community,commonstate,unitno,usereason,rightfeature,
+      feature,righttype,community,commonstate,unitno,usereason,rightfeature,
       area,insidearea,limitdate,otherstatus,remarks
     } = req.body;
-    let dict = await modelS.zypropertyright.create({    
+    let target = await modelS.zypropertyright.create({    
         ...newTarget,        
-        status:1
+        property_status:1
     })
-    console.log(dict);
+    console.log(target);
     res.json({
-      msg:'产权创建成功'
+      code: 0,
+      msg: '产权创建成功',
+      data: target
     })
 
   }
   catch(error){
+    res.json({
+      code: 1,
+      msg: '创建失败' + error.message
+    })
     console.error();
   }
   
@@ -57,7 +63,7 @@ router.all('/create',async (req,res)=>{
 router.all('/update',async (req,res)=>{
   try{
     let newTarget = {simpleaddress,address,owner,rightno,
-      feature,type,community,commonstate,unitno,usereason,rightfeature,
+      feature,righttype,community,commonstate,unitno,usereason,rightfeature,
       area,insidearea,limitdate,otherstatus,remarks,id
     } = req.body;
     let target = await modelS.zypropertyright.findOne({
@@ -72,13 +78,18 @@ router.all('/update',async (req,res)=>{
       })
 
     }
-    res.json({
-      //rows,
-      message:'更新记录成功'
-    })
     console.log(target);
+    res.json({
+      code: 0,
+      msg: '产权修改成功',
+      data: target
+    })
   }
   catch(error){
+    res.json({
+      code: 1,
+      msg: '修改失败' + error.message
+    })
     next(error);
   }
 })
@@ -86,21 +97,21 @@ router.all('/update',async (req,res)=>{
 //修改目标状态，比如已删除
 router.all('/update_status',async (req,res)=>{
   try{
-    let {status,id} = req.body;
+    let {property_status,id} = req.body;
     let target = await modelS.zypropertyright.findOne({
           where:{
             id
           }
     })
     //如果存在则更新为状态
-    if(target && target.status != status){
+    if(target && target.property_status != property_status){
       target = await target.update({
-        status
+        property_status
       })
     }
     res.json({
       code: 0,
-      message:'成功更新状态为' + status
+      message:'成功更新状态为' + property_status
     })
     console.log(target);
   }
@@ -115,21 +126,27 @@ router.all('/list/:page/:limit',async (req,res)=>{
 
     let { page, limit} = req.params;
     let {simpleaddress,address,owner,rightno,
-      feature,type,community,commonstate,unitno,usereason,rightfeature,
-      area,insidearea,limitdate,otherstatus,remarks,status
+      feature,righttype,community,commonstate,unitno,usereason,rightfeature,
+      area,insidearea,limitdate,otherstatus,remarks,property_status
     } = req.body;
 
     let offset = {};
 
-    if (!status && status !== 0) {
-      status = -2;
+    if (!property_status && property_status !== 0) {
+      property_status = -2;
     }
 
-    status = parseInt(status);
+    property_status = parseInt(property_status);
 
     let where = {};
 
-    if (contractno) {
+    if (simpleaddress) {
+      where.simpleaddress = {
+        [Op.substring]: simpleaddress
+      }
+    }
+
+    if (rightno) {
       where.rightno = {
         [Op.substring]: rightno
       }
@@ -147,17 +164,17 @@ router.all('/list/:page/:limit',async (req,res)=>{
       where.community = community;
     }
 
-    if (type != null) {
-      where.type = type;
+    if (righttype != null) {
+      where.righttype = righttype;
     }
 
     //如果合同状态为不要删除的
-    if (status === -2) {
-      where.status = {
+    if (property_status === -2) {
+      where.property_status = {
         [Op.ne]: -1
       }
     } else {
-      where.status = status;
+      where.property_status = property_status;
     }
 
     if (limit == -1) {

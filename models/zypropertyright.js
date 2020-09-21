@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     owner: DataTypes.STRING,
     rightno: DataTypes.STRING,
     feature: DataTypes.STRING,
-    type: DataTypes.STRING,
+    righttype: DataTypes.STRING,
     community: DataTypes.STRING,
     commonstate: DataTypes.STRING,
     unitno: DataTypes.STRING,
@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     limitdate: DataTypes.STRING,
     otherstatus: DataTypes.STRING,
     remarks: DataTypes.STRING,
-    status: DataTypes.STRING
+    property_status: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'zypropertyright',
