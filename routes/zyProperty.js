@@ -111,11 +111,15 @@ router.all('/update_status',async (req,res)=>{
     }
     res.json({
       code: 0,
-      message:'成功更新状态为' + property_status
+      msg:'成功更新状态为' + property_status
     })
     console.log(target);
   }
   catch(error){
+    res.json({
+      code: 0,
+      msg:'成功更新状态为' + property_status
+    })
     next(error);
   }
 })
