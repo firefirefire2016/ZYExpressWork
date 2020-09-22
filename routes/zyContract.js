@@ -37,19 +37,14 @@ router.all('/list', async (req, res) => {
 router.all('/create', async (req, res) => {
   try {
     let target = {
-      contractno, startdate, enddate, renttype, rightno,
-      rentdate, month_rent, deposit, tenant, tel_tenant,
-      rentcycle, firstdate, signdate, agentman, rentmode,
-      needcopy, quitdate, property_name, address
+      contractno,startdate,enddate,rentdate,renttype, 
+      once_rent,rightno,tenant, tel_tenant,//联系电话
+      tenant_idno,tenant_address,tenanttype,deposit,
+      copytype,contract_status,rentcycle,firstdate,
+      signdate, agentman,rentmode,quitdate,property_name,
+      accountingunit,latefeesrate,rightid,stopdate,stopreason,
+      effectdate,deldate,
     } = req.body;
-    // rentcycle: DataTypes.STRING,//付款周期
-    // firstdate:DataTypes.STRING,//首期收款日
-    // signdate:DataTypes.STRING,//签订日期
-    // agentman:DataTypes.STRING,//对接人 
-    // rentmode:DataTypes.STRING,//租金模式 
-    // needcopy:DataTypes.STRING,//是否需要抄表
-    // quitdate:DataTypes.STRING,//退租日期
-    // property_name:DataTypes.STRING,//物业名称
     let contract = await modelS.zycontract.create({
       ...target,
       contract_status: 1,
@@ -73,11 +68,13 @@ router.all('/create', async (req, res) => {
 router.all('/update', async (req, res) => {
   try {
     let newtarget = {
-      contractno, startdate, enddate, renttype, rightno,
-      rentdate, month_rent, deposit, tenant, tel_tenant,
-      rentcycle, firstdate, signdate, agentman, rentmode,
-      needcopy, quitdate, property_name, address, contract_status,
-      id
+      contractno,startdate,enddate,rentdate,renttype, 
+      once_rent,rightno,tenant, tel_tenant,//联系电话
+      tenant_idno,tenant_address,tenanttype,deposit,
+      copytype,contract_status,rentcycle,firstdate,
+      signdate, agentman,rentmode,quitdate,property_name,
+      accountingunit,latefeesrate,rightid,stopdate,stopreason,
+      effectdate,deldate,id
     } = req.body;
     let target = await modelS.zycontract.findOne({
       where: {

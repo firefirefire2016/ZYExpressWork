@@ -46,6 +46,10 @@ module.exports = (sequelize, DataTypes) => {
     accountingunit:DataTypes.STRING,//核算单位
     latefeesrate:DataTypes.STRING,//滞纳金比例
     rightid:DataTypes.INTEGER,//产权id
+    stopdate:DataTypes.STRING,//停用日期，一般与退租日期一致
+    stopreason:DataTypes.STRING,//停用原因
+    effectdate:DataTypes.STRING,//启用日期
+    deldate:DataTypes.STRING,//删除日期
   }, {
 
     sequelize,

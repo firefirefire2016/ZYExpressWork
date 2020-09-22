@@ -95,7 +95,19 @@ module.exports = {
       rightid: {//产权id
         allowNull: false,
         type: Sequelize.INTEGER
-      },  
+      },
+      stopdate: {//停用日期
+        type: Sequelize.STRING
+      },
+      stopreason: {//停用原因
+        type: Sequelize.STRING
+      },
+      effectdate: {//启用日期
+        type: Sequelize.STRING
+      },
+      deldate: {//删除日期
+        type: Sequelize.STRING
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {
