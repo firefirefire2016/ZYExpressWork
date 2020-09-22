@@ -20,7 +20,7 @@ module.exports = {
       rentdate: {
         type: Sequelize.STRING
       },
-      month_rent: {
+      once_rent: {
         type: Sequelize.STRING
       },
       renttype: {
@@ -35,12 +35,24 @@ module.exports = {
       tel_tenant: {
         type: Sequelize.STRING,
       },
+      tenant_idno: {
+        type: Sequelize.STRING,
+      },
+      tenant_address: {
+        type: Sequelize.STRING,
+      },
+      tenanttype:{
+        type: Sequelize.STRING,
+      },
+      copytype:{
+        type: Sequelize.STRING,
+      },//抄表类型
       deposit: {
         type: Sequelize.STRING,
       },
-      address: {
-        type: Sequelize.STRING
-      },
+      // address: {
+      //   type: Sequelize.STRING
+      // },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
@@ -67,16 +79,23 @@ module.exports = {
       },//对接人 
       rentmode: {
         type: Sequelize.STRING
-      },//租金模式 
-      needcopy: {
-        type: Sequelize.STRING
-      },//是否需要抄表
+      },//租金模式       
       quitdate: {
         type: Sequelize.STRING
       },//退租日期
       property_name: {
         type: Sequelize.STRING
-      }//物业名称     
+      },//物业名称     
+      accountingunit: {
+        type: Sequelize.STRING
+      },//核算单位
+      latefeesrate: {
+        type: Sequelize.STRING
+      },//滞纳金比例  
+      rightid: {//产权id
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },  
     });
   },
   down: async (queryInterface, Sequelize) => {

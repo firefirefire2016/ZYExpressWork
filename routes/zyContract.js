@@ -76,7 +76,7 @@ router.all('/update', async (req, res) => {
       contractno, startdate, enddate, renttype, rightno,
       rentdate, month_rent, deposit, tenant, tel_tenant,
       rentcycle, firstdate, signdate, agentman, rentmode,
-      needcopy, quitdate, property_name, address,contract_status,
+      needcopy, quitdate, property_name, address, contract_status,
       id
     } = req.body;
     let target = await modelS.zycontract.findOne({
@@ -162,14 +162,20 @@ router.all('/list/:page/:limit', async (req, res) => {
   //contract_status:['执行中','作废(已终止)','草稿','退租中','退租待结算','已到期'],
   try {
 
-    let { page, limit} = req.params;
-    let { contractno, renttype, startdate, enddate,agentman,
-      tenant,address,contract_status} = req.body;
-
-    
+    let { page, limit } = req.params;
+    let { contractno, renttype, startdate, enddate, agentman,
+      tenant, address, contract_status, simpleaddress,accountingunit } = req.body;
 
 
-    if(!contract_status && contract_status !== 0){
+    let where2 = {};
+
+    if (simpleaddress) {
+      where2.simpleaddress = {
+        [Op.substring]: simpleaddress
+      }
+    }
+
+    if (!contract_status && contract_status !== 0) {
       contract_status = -2;
     }
 
@@ -177,23 +183,23 @@ router.all('/list/:page/:limit', async (req, res) => {
 
     let where = {};
 
-    if(agentman){
+    if (agentman) {
       where.agentman = {
         [Op.substring]: agentman
       }
     }
 
-    if(tenant){
+    if (tenant) {
       where.tenant = {
         [Op.substring]: tenant
       }
     }
 
-    if(address){
+    if (address) {
       where.address = {
         [Op.substring]: address
       }
-    }    
+    }
 
     if (contractno != null) {
       where.contractno = {
@@ -204,6 +210,10 @@ router.all('/list/:page/:limit', async (req, res) => {
     if (renttype != null) {
       //   where.renttype = {[Op.gte]: renttype};
       where.renttype = renttype;
+    }
+
+    if (accountingunit != null) {
+      where.accountingunit = accountingunit;
     }
 
     if (startdate != null) {
@@ -225,7 +235,7 @@ router.all('/list/:page/:limit', async (req, res) => {
         [Op.ne]: -1
       }
     } else {
-        where.contract_status = contract_status;
+      where.contract_status = contract_status;
     }
 
     if (limit == -1) {
@@ -246,6 +256,10 @@ router.all('/list/:page/:limit', async (req, res) => {
         where,
         offset,
         limit,
+        include: [{
+          model: modelS.zypropertyright,
+          where: where2
+        }],
         order: [
           ['updatedAt', 'DESC'],
           ['createdAt', 'DESC']

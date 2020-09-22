@@ -13,6 +13,7 @@ var zyUnitRouter = require('./routes/zyUnit');
 var zyWaterEleRouter = require('./routes/zyWaterEle');
 var zyDictRouter = require('./routes/zyDict');
 var zyProperty = require('./routes/zyProperty');
+var zyRentlist = require('./routes/zyRentlist');
 
 const cors = require('cors');
 const mysql = require("mysql");
@@ -66,6 +67,8 @@ app.use('/zyUnit', zyUnitRouter);
 app.use('/zyWaterEle', zyWaterEleRouter);
 app.use('/zyDict', zyDictRouter);
 app.use('/zyProperty', zyProperty);
+app.use('/zyRentlist', zyRentlist);
+
 
  
 

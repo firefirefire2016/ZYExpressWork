@@ -11,6 +11,9 @@
 //收款表
 yarn sequelize model:generate --name zycollection --attributes month:string,amount_received:decimal,amount_receivable:decimal,invoice_amount:decimal,contractid:integer
 
+//租金标准表
+yarn sequelize model:generate --name zyrentlist --attributes startdate:string,enddate:string,oncerate:string,onceamount:string,endamount:decimal,contractid:integer,remarks:string
+
 //字典表
 yarn sequelize model:generate --name zysysdict --attributes dicttype:string,dicttypecode:string,
 dictcode:string,dictvalue:string,remarks:string,status:integer
