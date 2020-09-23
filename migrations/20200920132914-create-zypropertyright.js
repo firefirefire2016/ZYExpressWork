@@ -59,6 +59,9 @@ module.exports = {
       property_status: {
         type: Sequelize.STRING
       },
+      contractid:{
+        type: Sequelize.INTEGER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

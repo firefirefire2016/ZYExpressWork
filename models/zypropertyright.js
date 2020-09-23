@@ -30,7 +30,8 @@ module.exports = (sequelize, DataTypes) => {
     limitdate: DataTypes.STRING,
     otherstatus: DataTypes.STRING,
     remarks: DataTypes.STRING,
-    property_status: DataTypes.STRING
+    property_status: DataTypes.STRING,
+    contractid:DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'zypropertyright',

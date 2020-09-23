@@ -35,9 +35,14 @@ router.all('/create',async (req,res)=>{
     let newTarget = {startdate,enddate,oncerate,onceamount,endamount,contractid
       ,remarks,contract_status
     } = req.body;
-    let target = await modelS.zyrentlist.create({    
+
+    delete newTarget.id;
+
+    newTarget.status = 1;
+
+    let target = await modelS.zyrentlist.create({  
         ...newTarget,        
-        status:1
+        
     })
     console.log(target);
     res.json({
@@ -87,6 +92,39 @@ router.all('/update',async (req,res)=>{
     res.json({
       code: 1,
       msg: '修改失败' + error.message
+    })
+    next(error);
+  }
+})
+
+//修改目标状态，比如已删除
+router.all('/delbyContract', async (req, res) => {
+  try {
+    let { contract_status, id, status } = req.body;
+    let target = await modelS.zyrentlist.findAll({
+      where: {
+        contractid: id
+      }
+    })
+    //如果存在则更新为状态
+    target.forEach(async rent => {
+      if (rent && rent.status != status) {
+        rent = await rent.update({
+          contract_status,
+          status
+        })
+      }
+    });
+
+    res.json({
+      code: 0,
+      msg: '成功更新状态为' + status + '，合同状态为' + contract_status
+    })
+    //console.log(target);
+  } catch (error) {
+    res.json({
+      code: 0,
+      msg:'错误为' + status
     })
     next(error);
   }
@@ -150,6 +188,10 @@ router.all('/list/:page/:limit',async (req,res)=>{
 
     if (endamount != null) {
       where.endamount = endamount;
+    }
+
+    if (contractid != null) {
+      where.contractid = contractid;
     }
 
     //如果状态为不要删除的

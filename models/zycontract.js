@@ -15,8 +15,8 @@ module.exports = (sequelize, DataTypes) => {
     
     static associate(models) {
       // define association here
-     // this.hasMany(models.zycollection);
-     this.belongsTo(models.zypropertyright, { foreignKey: 'rightid' });
+      this.hasMany(models.zypropertyright,{ foreignKey: 'contractid' });
+     //this.belongsTo(models.zypropertyright, { foreignKey: 'rightid' });
     }
   };
   zyContract.init({

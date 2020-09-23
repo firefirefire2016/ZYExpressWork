@@ -34,7 +34,7 @@ router.all('/create',async (req,res)=>{
   try{
     let newTarget = {simpleaddress,address,owner,rightno,
       feature,righttype,community,commonstate,unitno,usereason,rightfeature,
-      area,insidearea,limitdate,otherstatus,remarks
+      area,insidearea,limitdate,otherstatus,remarks,
     } = req.body;
     let target = await modelS.zypropertyright.create({    
         ...newTarget,        
@@ -64,7 +64,7 @@ router.all('/update',async (req,res)=>{
   try{
     let newTarget = {simpleaddress,address,owner,rightno,
       feature,righttype,community,commonstate,unitno,usereason,rightfeature,
-      area,insidearea,limitdate,otherstatus,remarks,id
+      area,insidearea,limitdate,otherstatus,remarks,id,contractid
     } = req.body;
     let target = await modelS.zypropertyright.findOne({
           where:{
@@ -93,6 +93,8 @@ router.all('/update',async (req,res)=>{
     next(error);
   }
 })
+
+
 
 //修改目标状态，比如已删除
 router.all('/update_status',async (req,res)=>{
@@ -131,7 +133,7 @@ router.all('/list/:page/:limit',async (req,res)=>{
     let { page, limit} = req.params;
     let {simpleaddress,address,owner,rightno,
       feature,righttype,community,commonstate,unitno,usereason,rightfeature,
-      area,insidearea,limitdate,otherstatus,remarks,property_status
+      area,insidearea,limitdate,otherstatus,remarks,property_status,contractid
     } = req.body;
 
     let offset = {};
@@ -171,6 +173,22 @@ router.all('/list/:page/:limit',async (req,res)=>{
     if (righttype != null) {
       where.righttype = righttype;
     }
+
+    if(contractid){
+      where.contractid = contractid;    
+    }
+
+    // if(contractid == null){
+    //   where.contractid = {
+    //     [Op.is]: null,
+    //   }      
+    // }
+    // else if(contractid == -1) {
+    //   //contractid =-1时搜索所有产权
+    // }
+    // else {
+    //   where.contractid = contractid;
+    // }
 
     //如果合同状态为不要删除的
     if (property_status === -2) {

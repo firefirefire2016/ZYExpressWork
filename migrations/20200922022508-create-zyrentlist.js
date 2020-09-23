@@ -36,7 +36,13 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
-      }
+      },
+      status: {
+        type: Sequelize.INTEGER
+      },
+      contract_status: {
+        type: Sequelize.INTEGER
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {

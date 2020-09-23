@@ -21,7 +21,9 @@ module.exports = (sequelize, DataTypes) => {
     onceamount: DataTypes.STRING,
     endamount: DataTypes.DECIMAL,
     contractid: DataTypes.INTEGER,
-    remarks: DataTypes.STRING
+    remarks: DataTypes.STRING,
+    status:DataTypes.INTEGER,
+    contract_status:DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'zyrentlist',
