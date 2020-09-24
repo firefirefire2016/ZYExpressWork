@@ -33,7 +33,7 @@ router.all('/list',async (req,res)=>{
 router.all('/create',async (req,res)=>{
   try{
     let newTarget = {startdate,enddate,oncerate,onceamount,endamount,contractid
-      ,remarks,contract_status
+      ,remarks,contract_status,rentcycle
     } = req.body;
 
     delete newTarget.id;
@@ -67,7 +67,7 @@ router.all('/create',async (req,res)=>{
 router.all('/update',async (req,res)=>{
   try{
     let newTarget = {startdate,enddate,oncerate,onceamount,endamount,contractid
-      ,remarks,contract_status,id
+      ,remarks,contract_status,id,rentcycle
     } = req.body;
     let target = await modelS.zyrentlist.findOne({
           where:{
@@ -167,7 +167,7 @@ router.all('/list/:page/:limit',async (req,res)=>{
 
     let { page, limit} = req.params;
     let {startdate,enddate,oncerate,onceamount,endamount,contractid
-      ,remarks,contract_status,id,status
+      ,remarks,contract_status,id,status,rentcycle
     } = req.body;
 
     let offset = {};

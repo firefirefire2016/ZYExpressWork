@@ -47,7 +47,7 @@ router.all('/create', async (req, res) => {
     } = req.body;
     let contract = await modelS.zycontract.create({
       ...target,
-      contract_status: 1,
+      contract_status: 0,
     })
     console.log(contract.dataValues);
     res.json({
@@ -249,7 +249,7 @@ router.all('/list/:page/:limit', async (req, res) => {
 
 
     if (limit != 0) {
-      const { count, rows } = await modelS.zycontract.findAndCountAll({
+      let { count, rows } = await modelS.zycontract.findAndCountAll({
         where,
         offset,
         limit,
@@ -262,6 +262,11 @@ router.all('/list/:page/:limit', async (req, res) => {
           ['createdAt', 'DESC']
         ]
       })
+      // rows.forEach(row => {
+      //   row['area'] = row.zypropertyrights[0].area; 
+      //   row['insidearea'] = row.zypropertyrights[0].area;
+      //   row['simpleaddress'] = row.zypropertyrights[0].simpleaddress;
+      // });
       console.log(rows);
       res.json({
         code: 0,

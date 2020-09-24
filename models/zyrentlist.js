@@ -24,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     remarks: DataTypes.STRING,
     status:DataTypes.INTEGER,
     contract_status:DataTypes.INTEGER,
+    rentcycle:DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'zyrentlist',

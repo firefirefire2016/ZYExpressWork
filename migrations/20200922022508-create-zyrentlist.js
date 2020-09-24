@@ -43,6 +43,9 @@ module.exports = {
       contract_status: {
         type: Sequelize.INTEGER
       },
+      rentcycle: {
+        type: Sequelize.INTEGER
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {
