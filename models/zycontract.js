@@ -50,6 +50,7 @@ module.exports = (sequelize, DataTypes) => {
     stopreason:DataTypes.STRING,//停用原因
     effectdate:DataTypes.STRING,//启用日期
     deldate:DataTypes.STRING,//删除日期
+    rentarea:DataTypes.STRING,
   }, {
 
     sequelize,

@@ -108,6 +108,9 @@ module.exports = {
       deldate: {//删除日期
         type: Sequelize.STRING
       },
+      rentarea:{
+        type: Sequelize.STRING
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {
