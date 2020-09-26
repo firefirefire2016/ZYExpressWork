@@ -35,7 +35,7 @@ router.all('/list', async (req, res) => {
 router.all('/create', async (req, res) => {
   try {
     let target = {
-      amount_received = 0,contractno,
+      amount_received = 0, contractno,
       amount_receivable = 0, invoice_amount = 0,
       startdate, enddate, itemname, overstate, latefees,
       invoice_limit, billno, collectdate, invoicedate
@@ -74,7 +74,7 @@ router.all('/create', async (req, res) => {
 router.all('/update', async (req, res) => {
   try {
     let newTarget = {
-      amount_received,id,contractno,
+      amount_received, id, contractno,
       amount_receivable, invoice_amount,
       startdate, enddate, itemname, overstate, latefees,
       invoice_limit, billno, collectdate, invoicedate
@@ -185,19 +185,23 @@ router.all('/update_status', async (req, res) => {
   }
 })
 
-router.all('/list/:page/:limit', async (req, res) => {
+//针对账单汇总查询
+router.all('/mergelist/:page/:limit', async (req, res) => {
   //状态 1：表示正常 -1：表示已删除 -2:除了删除的
   //合同状态 0:未生效 1：已生效 2:已到期 3:已失效 -1:已删除 -2:除了删除的
   //1.通过合同id找收款表
   try {
     //limit=-1的话，先查找总数量，再进行查询
     let { page, limit } = req.params;
-    let { billno, itemname, overstate, property_name,rentdate ,contractid,contract_status,
-      status,contractno,amount_select, invoice_select, startdate, enddate } = req.body;
+    let { billno, itemname, contractid, contract_status,
+      status, contractno, startdate, enddate,
+    } = req.body;
+    let { isOwe, needInvoice, nowrealrent, nowrealinvoice, overstate, rentdate, simpleaddress } = req.body;
 
     let offset = {};
 
     let where2 = {};
+
 
     if (rentdate) {
       where2.rentdate = rentdate
@@ -209,9 +213,260 @@ router.all('/list/:page/:limit', async (req, res) => {
       }
     }
 
-    if (property_name) {
-      where2.property_name = {
-        [Op.substring]: property_name
+    if (simpleaddress) {
+      where2.simpleaddress = {
+        [Op.substring]: simpleaddress
+      }
+    }
+
+    where2.contract_status = {
+      [Op.not]: 0
+    }
+
+
+
+    if (!contract_status && contract_status !== 0) {
+      contract_status = -2;
+    }
+
+    if (!status && status !== 0) {
+      status = -2;
+    }
+
+    contract_status = parseInt(contract_status);
+    status = parseInt(status);
+    let where = {};
+
+    //如果状态为不要删除的
+    if (status === -2) {
+    }
+
+    //如果合同状态为不要删除的
+    if (contract_status === -2) {
+      where2.contract_status = {
+        [Op.ne]: -1
+      }
+    } else {
+      where2.contract_status = contract_status;
+    }
+
+    if (startdate != null) {
+      where.startdate = { [Op.gte]: startdate };
+    }
+
+    if (enddate != null) {
+      where.enddate = { [Op.lte]: enddate };
+    }
+
+
+    if (billno) {
+      where.billno = {
+        [Op.substring]: billno
+      }
+    }
+
+    if (itemname && itemname != 0) {
+      where.itemname = itemname
+    }
+
+    if (overstate && overstate != 0) {
+      where.overstate = overstate
+    }
+    if (contractid) {
+      where.contractid = contractid
+    }
+
+
+    if (limit == -1) {
+      limit = 10;
+      offset = (page - 1) * limit;
+    } else {
+      limit = parseInt(limit);
+      offset = (page - 1) * limit;
+    }
+
+    //先找所有符合条件的合同
+    let contracts = await modelS.zycontract.findAndCountAll(
+      {
+        where: where2,
+      }
+    )
+
+
+    let targetRentlist = [];
+
+
+    let rows = contracts.rows;
+
+
+    for (let index = 0; index < rows.length; index++) {
+      const row = rows[index];
+      where.contractid = row.id;
+      //通过指定合同id，找到本期账单，通过降序找到最近的一期账单，结束日期和开始日期都为最大值
+      let item = await modelS.zycollection.findOne({
+        where,
+        offset,
+        limit,
+
+        order: [
+          [Sequelize.cast(Sequelize.col('enddate'), 'SIGNED'), 'DESC'],
+          [Sequelize.cast(Sequelize.col('startdate'), 'SIGNED'), 'DESC']
+        ]
+      })
+
+      if (item === null) {
+        continue
+      }
+
+      item.simpleaddress = row.simpleaddress;
+
+      item.rentdate = row.rentdate;
+
+      //判断该账单是否符合条件
+      if (parseInt(nowrealrent) === 1 && item.amount_received > 0) {
+        continue;
+      }
+      else if (parseInt(nowrealrent) === 2 && item.amount_received === 0) {
+        continue;
+      }
+
+      if (parseInt(nowrealinvoice) === 1 && where.invoice_amount > 0) {
+        continue;
+      }
+      else if (parseInt(nowrealinvoice) === 2 && where.invoice_amount === 0) {
+        continue;
+      }
+
+      item.nowneedrent = item.amount_receivable;
+
+      item.nowrealrent = item.amount_received;
+
+      item.nowneedinvoice = item.invoice_limit;
+
+      item.nowrealinvoice = item.invoice_amount;
+
+      let totalrents = await modelS.zycollection.findAndCountAll({
+        where,
+        offset,
+        limit
+      })
+
+      let totalrows = totalrents.rows;
+
+      let totalneedAmount = 0;
+
+      let totalrealAmount = 0;
+
+      let totalneedInvoice = 0;
+
+      let totalrealInvoice = 0
+
+      for (let index = 0; index < totalrows.length; index++) {
+        const row = totalrows[index];
+        totalneedAmount += parseFloat(row.amount_receivable) ;
+
+        totalneedInvoice += parseFloat(row.invoice_limit) ;
+
+        totalrealAmount += parseFloat(row.amount_received) ;
+
+        totalrealInvoice += parseFloat(row.totalrealInvoice) ;
+
+      }
+
+      item.totalneedAmount = totalneedAmount;
+
+      item.totalrealAmount = totalrealAmount;
+
+      item.totalneedInvoice = totalneedInvoice;
+
+      item.totalrealInvoice = totalrealInvoice;
+
+      let oweAmount = totalneedAmount - totalrealAmount;
+
+      let invoiceNeed = totalneedInvoice - totalrealInvoice;
+
+      //isOwe,needInvoic,nowrealrent,nowrealinvoice,overstate,
+      //累计未收，'全部', '无欠费', '其他'
+      //累计未开,'全部', '无欠票', '其他'
+
+      if (oweAmount > 0) {
+        item.isOwe = 2;
+      }
+      else if (oweAmount === 0) {
+        item.isOwe = 1;
+      }
+
+      if (invoiceNeed > 0) {
+        item.needInvoice = 2;
+      }
+      else if (invoiceNeed === 0) {
+        item.needInvoice = 1;
+      }
+
+      if (isOwe != undefined && parseInt(isOwe) !== item.isOwe && isOwe != 0) {
+        continue
+      }
+
+      if (needInvoice != undefined && parseInt(needInvoice) !== item.needInvoice && needInvoice != 0) {
+        continue
+      }
+
+      targetRentlist.push(item);
+
+    }
+
+    // limit = parseInt(limit);
+    // offset = (page - 1) * limit;
+
+    let newList = [];
+
+    for (let index = offset; index < offset + limit; index++) {
+      const element = targetRentlist[index];
+      newList.push(element);
+    }
+
+    console.log(newList);
+    res.json({
+      code: 0,
+      newList,
+      total: targetRentlist.length,
+      msg: '成功获得条件列表,共' + targetRentlist.length + '条记录'
+    })
+  } catch (error) {
+    next(error.message);
+  }
+
+})
+
+//详情账单查询，一般账单查询
+router.all('/list/:page/:limit', async (req, res) => {
+  //状态 1：表示正常 -1：表示已删除 -2:除了删除的
+  //合同状态 0:未生效 1：已生效 2:已到期 3:已失效 -1:已删除 -2:除了删除的
+  //1.通过合同id找收款表
+  try {
+    //limit=-1的话，先查找总数量，再进行查询
+    let { page, limit } = req.params;
+    let { billno, itemname, overstate, simpleaddress, rentdate, contractid, contract_status,
+      status, contractno, amount_select, invoice_select, startdate, enddate } = req.body;
+
+    let offset = {};
+
+    let where2 = {};
+
+
+    if (rentdate) {
+      where2.rentdate = rentdate
+    }
+
+    if (contractno) {
+      where2.contractno = {
+        [Op.substring]: contractno
+      }
+    }
+
+    if (simpleaddress) {
+      where2.simpleaddress = {
+        [Op.substring]: simpleaddress
       }
     }
 
@@ -229,11 +484,11 @@ router.all('/list/:page/:limit', async (req, res) => {
 
     //如果状态为不要删除的
     if (status === -2) {
-    //   where.status = {
-    //     [Op.ne]: -1
-    //   }
-    // } else {
-    //   where.status = status;
+      //   where.status = {
+      //     [Op.ne]: -1
+      //   }
+      // } else {
+      //   where.status = status;
     }
 
     //如果合同状态为不要删除的
@@ -269,22 +524,22 @@ router.all('/list/:page/:limit', async (req, res) => {
     }
 
     //选择未缴费，则查询实际收款为0的
-    if (parseInt(amount_select)  === 1) {
+    if (parseInt(amount_select) === 1) {
       where.amount_received = 0
     }
     //选择其他，则查询实际收款为大于0的
-    if (parseInt(amount_select)  === 2) {
+    if (parseInt(amount_select) === 2) {
       where.amount_received = {
         [Op.gt]: 0
       }
     }
 
     //选择未缴费，则查询实际收款为0的
-    if (parseInt(invoice_select)  === 1) {
+    if (parseInt(invoice_select) === 1) {
       where.invoice_amount = 0
     }
     //选择其他，则查询实际收款为大于0的
-    if (parseInt(invoice_select)  === 2) {
+    if (parseInt(invoice_select) === 2) {
       where.invoice_amount = {
         [Op.gt]: 0
       }
@@ -293,6 +548,10 @@ router.all('/list/:page/:limit', async (req, res) => {
     if (contractid) {
       where.contractid = contractid
     }
+
+    // where.contractid = {
+    //   [Op.col]:'zycollection.contractid'
+    // }
 
 
 
@@ -329,6 +588,7 @@ router.all('/list/:page/:limit', async (req, res) => {
       //   }
       // }]
     })
+
     console.log(rows);
     res.json({
       code: 0,

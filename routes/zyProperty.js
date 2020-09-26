@@ -178,6 +178,10 @@ router.all('/list/:page/:limit',async (req,res)=>{
       where.contractid = contractid;    
     }
 
+    // where.contractid = {
+    //   [Op.col]:'zypropertyright.contractid'
+    // }
+
     // if(contractid == null){
     //   where.contractid = {
     //     [Op.is]: null,
@@ -200,11 +204,7 @@ router.all('/list/:page/:limit',async (req,res)=>{
     }
 
     if (limit == -1) {
-      const amount = await modelS.zypropertyright.count({
-        where
-      });
-      limit = amount;
-      limit = parseInt(limit);
+      limit = 10;
       offset = (page - 1) * limit;
     } else {
       limit = parseInt(limit);
