@@ -202,6 +202,8 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
 
     let where2 = {};
 
+    let where3 = {};
+
 
     if (rentdate) {
       where2.rentdate = rentdate
@@ -214,7 +216,7 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
     }
 
     if (simpleaddress) {
-      where2.simpleaddress = {
+      where3.simpleaddress = {
         [Op.substring]: simpleaddress
       }
     }
@@ -244,7 +246,7 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
     //如果合同状态为不要删除的
     if (contract_status === -2) {
       where2.contract_status = {
-        [Op.ne]: -1
+        [Op.gt]: 0
       }
     } else {
       where2.contract_status = contract_status;
@@ -289,6 +291,10 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
     let contracts = await modelS.zycontract.findAndCountAll(
       {
         where: where2,
+        include: [{
+          model: modelS.zypropertyright,
+          where:where3,
+        }],
       }
     )
 
@@ -306,7 +312,7 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
       let item = await modelS.zycollection.findOne({
         where,
         offset,
-        limit,
+        limit,        
 
         order: [
           [Sequelize.cast(Sequelize.col('enddate'), 'SIGNED'), 'DESC'],
@@ -318,22 +324,28 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
         continue
       }
 
-      item.simpleaddress = row.simpleaddress;
+      item = item.dataValues;
+
+      item.contractno = row.contractno;
+
+      item.simpleaddress = row.zypropertyrights[0].simpleaddress;
 
       item.rentdate = row.rentdate;
 
       //判断该账单是否符合条件
-      if (parseInt(nowrealrent) === 1 && item.amount_received > 0) {
-        continue;
-      }
-      else if (parseInt(nowrealrent) === 2 && item.amount_received === 0) {
+      if (parseInt(nowrealrent) === 1 &&  item.amount_received > 0) {
         continue;
       }
 
-      if (parseInt(nowrealinvoice) === 1 && where.invoice_amount > 0) {
+      if (parseInt(nowrealrent) === 2 && item.amount_received <= 0) {
         continue;
       }
-      else if (parseInt(nowrealinvoice) === 2 && where.invoice_amount === 0) {
+
+      if (parseInt(nowrealinvoice) === 1 && item.invoice_amount > 0) {
+        continue;
+      }
+      
+      if (parseInt(nowrealinvoice) === 2 && item.invoice_amount <= 0) {
         continue;
       }
 
@@ -369,7 +381,7 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
 
         totalrealAmount += parseFloat(row.amount_received) ;
 
-        totalrealInvoice += parseFloat(row.totalrealInvoice) ;
+        totalrealInvoice += parseFloat(row.invoice_amount) ;
 
       }
 
@@ -389,26 +401,32 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
       //累计未收，'全部', '无欠费', '其他'
       //累计未开,'全部', '无欠票', '其他'
 
-      if (oweAmount > 0) {
-        item.isOwe = 2;
+      if (isOwe != undefined && parseInt(isOwe) === 1 && oweAmount > 0) {
+        continue
       }
-      else if (oweAmount === 0) {
-        item.isOwe = 1;
+      else if(isOwe != undefined && parseInt(isOwe) === 2 && oweAmount <= 0){
+        continue
+      }
+
+      if (needInvoice != undefined && parseInt(needInvoice) === 1 && invoiceNeed > 0) {
+        continue
+      }
+      else if(needInvoice != undefined && parseInt(needInvoice) === 2 && invoiceNeed <= 0){
+        continue
+      }
+
+      if (oweAmount > 0) {
+        item.isOwe = oweAmount;
+      }
+      else if (oweAmount <= 0) {
+        item.isOwe = '无欠费';
       }
 
       if (invoiceNeed > 0) {
-        item.needInvoice = 2;
+        item.needInvoice = invoiceNeed;
       }
-      else if (invoiceNeed === 0) {
-        item.needInvoice = 1;
-      }
-
-      if (isOwe != undefined && parseInt(isOwe) !== item.isOwe && isOwe != 0) {
-        continue
-      }
-
-      if (needInvoice != undefined && parseInt(needInvoice) !== item.needInvoice && needInvoice != 0) {
-        continue
+      else if (invoiceNeed <= 0) {
+        item.needInvoice = '无欠票';
       }
 
       targetRentlist.push(item);
@@ -420,9 +438,14 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
 
     let newList = [];
 
+    let long = offset + limit;
+
     for (let index = offset; index < offset + limit; index++) {
       const element = targetRentlist[index];
-      newList.push(element);
+      if(element){
+        newList.push(element);
+      }
+      
     }
 
     console.log(newList);
@@ -453,6 +476,7 @@ router.all('/list/:page/:limit', async (req, res) => {
 
     let where2 = {};
 
+    let where3 = {};
 
     if (rentdate) {
       where2.rentdate = rentdate
@@ -465,7 +489,7 @@ router.all('/list/:page/:limit', async (req, res) => {
     }
 
     if (simpleaddress) {
-      where2.simpleaddress = {
+      where3.simpleaddress = {
         [Op.substring]: simpleaddress
       }
     }
@@ -493,11 +517,11 @@ router.all('/list/:page/:limit', async (req, res) => {
 
     //如果合同状态为不要删除的
     if (contract_status === -2) {
-      where.contract_status = {
-        [Op.ne]: -1
+      where2.contract_status = {
+        [Op.gt]: 0
       }
     } else {
-      where.contract_status = contract_status;
+      where2.contract_status = contract_status;
     }
 
     if (startdate != null) {
@@ -567,14 +591,18 @@ router.all('/list/:page/:limit', async (req, res) => {
       offset = (page - 1) * limit;
     }
 
-    const { count, rows } = await modelS.zycollection.findAndCountAll({
+    let { count, rows } = await modelS.zycollection.findAndCountAll({
       where,
       offset,
       limit,
       //include:modelS.zycontract,
       include: [{
         model: modelS.zycontract,
-        where: where2
+        where: where2,
+        include:[{
+          model:modelS.zypropertyright,
+          where: where3,
+        }]
       }],
       order: [
         [Sequelize.cast(Sequelize.col('year'), 'SIGNED'), 'DESC'],
@@ -588,6 +616,11 @@ router.all('/list/:page/:limit', async (req, res) => {
       //   }
       // }]
     })
+
+    for (let index = 0; index < rows.length; index++) {
+      rows[index].dataValues.simpleaddress = rows[index].dataValues.zycontract.zypropertyrights[0].simpleaddress;
+      
+    }
 
     console.log(rows);
     res.json({
