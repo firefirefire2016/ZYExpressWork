@@ -43,6 +43,7 @@ module.exports = (sequelize, DataTypes) => {
     billno:DataTypes.STRING,
     collectdate:DataTypes.STRING,
     invoicedate:DataTypes.STRING,
+    remarks:DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'zycollection',

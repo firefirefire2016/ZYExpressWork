@@ -79,6 +79,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
+      remarks:{
+        allowNull: false,
+        type: Sequelize.STRING
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {

@@ -34,180 +34,199 @@ router.all('/list', async (req, res) => {
 })
 
 //启用合同
-router.all('/startUse',async(req,res) =>{
-  try{
+router.all('/startUse', async (req, res) => {
+  try {
 
-    let { id } = req.body;
-
-    var _sourceUrl = 'zyRentlist';
+    let { id, contractno } = req.body;
 
     let where1 = {};
 
     where1.contractid = id;
 
-    //TODO
+    where1.status = {
+      [Op.ne]: -1
+    }
 
     let rentlists = await modelS.zyrentlist.findAndCountAll({
-       where:where1
+      where: where1
     })
 
-    //通过id获取租金标准，如果为空，则做提醒失败
-    await getList(_sourceUrl, 1, -1, { contractid: id }).then(async function (res) {
-        if (res.code === 0) {
-            //message.info(res.msg);
-        }
-        else {
-            message.warn('获取租金标准失败:' + res.msg);
-            return;
-        }
-        if (res.total <= 0) {
-            message.warn('租金标准不能为空，请编辑好再启用');
-            return
-        }
-        //假如存在租金标准，则自动生成2020年1月开始的账单
-        if (res.total >= 1) {
-            var rentUrl = 'zyCollection';
+    if (rentlists == null || rentlists.count <= 0) {
+      res.json({
+        code: 1,
+        msg: '租金标准不能为空，请编辑好再启用'
+      })
+    }
 
-            var rows = res.rows;
+    //假如存在租金标准，则自动生成2020年1月开始的账单
+    if (rentlists.count >= 1) {
 
-            for (let index = 0; index < rows.length; index++) {
-                const row = rows[index];
-                //如果是首期收款
-                if (row.rentcycle === '0') {
+      var rows = rentlists.rows;
 
-                    let dateNo = getTodayStr();
-                    if (parseFloat(row.enddate) > 20200101) {
-                        let newCollection = {
-                            contractid: id,
-                            contract_status: 1,
-                            startdate: row.startdate,
-                            enddate: row.enddate,
-                            amount_receivable: row.endamount,
-                            invoice_limit: row.endamount,
-                            billno: dateNo + '001',
-                            itemname: '0',
-                            amount_received: 0,
-                            invoice_amount: 0,
-                        }
-                        await createTarget(rentUrl, newCollection).then(function (res) {
-                            if (res.code === 1) {
-                                message.warn('自动生成账单失败:' + res.msg);
-                            }
-                        })
-                    }
-                }
-                else {
-                    //如果是后面的周期性收款，则根据周期生成账单
-                    let cycle = parseInt(row.rentcycle);//这是周期，1到12
 
-                    var startYear = parseInt(row.startdate.substring(0, 4));
 
-                    var startMonth = parseInt(row.startdate.substring(4, 6));
+      for (let index = 0; index < rows.length; index++) {
+        const row = rows[index];
+        //如果是首期收款
+        if (parseInt(row.rentcycle) === 1) {
 
-                    var startDay = parseInt(row.startdate.substring(6, 8));
+          var today = new Date();
 
-                    var endYear = parseInt(row.enddate.substring(0, 4));
+          var year = today.getFullYear();
 
-                    var endMonth = parseInt(row.enddate.substring(4, 6));
+          var month = parseInt(today.getMonth()) + 1;
 
-                    var endDay = parseInt(row.enddate.substring(6, 8));
+          var day = today.getDate();
 
-                    let realMonth = 0;
+          if (month < 10) {
+            month = '0' + month;
+          }
 
-                    let dataMonth = startMonth;
+          if (day < 10) {
+            day = '0' + day;
+          }
 
-                    for (let year = startYear; year < endYear; year++) {
-                        if (year < 2020) {
-                            let leftyear = 2020 - year;
-                            let leftmonth = 12 - startMonth;
-                            let leftmonths = leftyear * 12 + leftmonth + 1;
-                            realMonth = ((leftmonths - startMonth) % cycle);//取得余数
-                            if (realMonth > 0) {
-                                //1月份减去余数得跨年前的月份，再加上周期，再减去12月，可得2020年账单开始的月份
-                                dataMonth = 13 - realMonth + cycle - 12;
-                            }
-                            else {
-                                dataMonth = 1;
-                            }
-                            year = 2019;
-                            continue;
-                        }
-                        if (dataMonth > 12) {
-                            dataMonth = dataMonth - 12;
-                        }
-                        //通过周期性生成账单
-                        for (; dataMonth <= 12; dataMonth = dataMonth + cycle) {
-                            let startdate, enddate;
-                            if (dataMonth < 10) {
-                                startdate = year + '0' + dataMonth + '01';
-                            }
-                            else {
-                                startdate = year + dataMonth + '01';
-                            }
-                            if (dataMonth + 1 < 10) {
-                                enddate = year + '0' + (dataMonth + 1) + '01';
-                            }
-                            else {
-                                enddate = year + (dataMonth + 1) + '01';
-                            }
+          let dateNo = year + month + day;
 
-                            let newCollection = {
-                                contractid: id,
-                                contract_status: 1,
-                                startdate,
-                                enddate,
-                                amount_receivable: row.endamount,
-                                invoice_limit: row.endamount,
-                                billno: startdate + '001',
-                                itemname: '0',
-                                amount_received: 0,
-                                invoice_amount: 0,
-                            }
-                            await createTarget(rentUrl, newCollection).then(function (res) {
-                                if (res.code === 1) {
-                                    message.warn('自动生成账单失败:' + res.msg);
-                                }
-                            })
-
-                        }
-
-                    }
-
-                }
-
+          if (parseFloat(row.enddate) > 20200101) {
+            let newCollection = {
+              contractid: id,
+              contract_status: 1,
+              startdate: row.startdate,
+              enddate: row.enddate,
+              amount_receivable: row.endamount,
+              invoice_limit: row.endamount,
+              billno: dateNo + '001',
+              itemname: '0',
+              amount_received: 0,
+              invoice_amount: 0,
             }
 
-
-
-
-
-        }
-
-
-        //生成账单同时，合同状态改为1，已生效
-        await updateOneStatus(sourceUrl,{contract_status:1,id}).then(function(res){
-
-            if (res.code === 0) {
-                message.info(res.msg);
-            }
-            else {
-                message.warn('启用状态失败:' + res.msg);
-            }
-
-            dispatch({
-                type: "COMMIT_START",
-                payload: { ...res,  res }
+            let firstRent = await modelS.zycollection.create({
+              ...newCollection,
+              remarks: '首期收款',
             })
+          }
 
-        });
+        }
+        else if (parseInt(row.rentcycle) >= 2) {
+          //如果是后面的周期性收款，则根据周期生成账单
+          let cycle = parseInt(row.rentcycle) - 1;//这是周期，1到12
 
+          var startYear = parseInt(row.startdate.substring(0, 4));
 
-    });
+          var startMonth = parseInt(row.startdate.substring(4, 6));
+
+          var startDay = parseInt(row.startdate.substring(6, 8));
+
+          var endYear = parseInt(row.enddate.substring(0, 4));
+
+          var endMonth = parseInt(row.enddate.substring(4, 6));
+
+          var endDay = parseInt(row.enddate.substring(6, 8));
+
+          let realMonth = 0;
+
+          let dataMonth = startMonth;
+
+          let date = new Date();
+
+          let currentMonth = parseInt(date.getMonth()) +1
+
+          let currentYear = parseInt(date.getFullYear())
+
+          for (let year = startYear; year <= currentYear; year++) {
+            if (year < 2020) {
+              let leftyear = 2020 - year;
+              let leftmonth = 12 - startMonth;
+              let leftmonths = leftyear * 12 + leftmonth + 1;
+              realMonth = ((leftmonths - startMonth) % cycle);//取得余数
+              if (realMonth > 0) {
+                //1月份减去余数得跨年前的月份，再加上周期，再减去12月，可得2020年账单开始的月份
+                dataMonth = 13 - realMonth + cycle - 12;
+              }
+              else {
+                dataMonth = 1;
+              }
+              year = 2019;
+              continue;
+            }
+            if (dataMonth > 12) {
+              dataMonth = dataMonth - 12;
+            }
+            let count = 1;
+            //通过周期性生成账单
+            for (; dataMonth <= 12; dataMonth = dataMonth + cycle) {
+              if (year === currentYear && dataMonth > currentMonth) {
+                break;
+              }
+              let startdate, enddate;
+              if (dataMonth < 10) {
+                startdate = year.toString() + '0' + dataMonth.toString() + '01';
+              }
+              else {
+                startdate = year.toString() + dataMonth.toString() + '01';
+              }
+              if (dataMonth + 1 < 10) {
+                enddate = year.toString() + '0' + (dataMonth + 1).toString() + '01';
+              }
+              else {
+                enddate = year.toString() + (dataMonth + 1).toString() + '01';
+                if (dataMonth == 12) {
+                  enddate = (year + 1).toString() + '0101';
+                }
+              }
+
+              let newCollection = {
+                contractid: id,
+                contract_status: 1,
+                startdate,
+                enddate,
+                amount_receivable: row.endamount,
+                invoice_limit: row.endamount,
+                billno: contractno + startdate + '0' + count,
+                itemname: '1',
+                amount_received: 0,
+                invoice_amount: 0,
+              }
+
+              let nextRent = await modelS.zycollection.create({
+                ...newCollection,
+              })
+
+              count++;
+
+              console.log(nextRent);
+
+            }
+
+          }
+
+        }
+
+      }
+
+      let target = await modelS.zycontract.findOne({
+        where: {
+          id
+        }
+      })
+      //如果存在则更新
+      if (target) {
+        target = await target.update({
+          contract_status: 1,
+        })
+        res.json({
+          code: 0,
+          msg: '启用合同成功'
+        })
+      }
+    }
 
 
 
   }
-  catch(error){
+  catch (error) {
     res.json({
       code: 1,
       msg: error.message
@@ -218,14 +237,17 @@ router.all('/startUse',async(req,res) =>{
 router.all('/create', async (req, res) => {
   try {
     let target = {
-      contractno,startdate,enddate,rentdate,renttype, 
-      once_rent,rightno,tenant, tel_tenant,//联系电话
-      tenant_idno,tenant_address,tenanttype,deposit,
-      copytype,contract_status,rentcycle,firstdate,
-      signdate, agentman,rentmode,quitdate,property_name,
-      accountingunit,latefeesrate,rightid,stopdate,stopreason,
-      effectdate,deldate,
+      contractno, startdate, enddate, rentdate, renttype,
+      once_rent, rightno, tenant, tel_tenant,//联系电话
+      tenant_idno, tenant_address, tenanttype, deposit,
+      copytype, contract_status, rentcycle, firstdate,
+      signdate, agentman, rentmode, quitdate, property_name,
+      accountingunit, latefeesrate, rightid, stopdate, stopreason,
+      effectdate, deldate,
     } = req.body;
+
+    delete target.id;
+
     let contract = await modelS.zycontract.create({
       ...target,
       contract_status: 0,
@@ -249,13 +271,13 @@ router.all('/create', async (req, res) => {
 router.all('/update', async (req, res) => {
   try {
     let newtarget = {
-      contractno,startdate,enddate,rentdate,renttype, 
-      once_rent,rightno,tenant, tel_tenant,//联系电话
-      tenant_idno,tenant_address,tenanttype,deposit,
-      copytype,contract_status,rentcycle,firstdate,
-      signdate, agentman,rentmode,quitdate,property_name,
-      accountingunit,latefeesrate,rightid,stopdate,stopreason,
-      effectdate,deldate,id
+      contractno, startdate, enddate, rentdate, renttype,
+      once_rent, rightno, tenant, tel_tenant,//联系电话
+      tenant_idno, tenant_address, tenanttype, deposit,
+      copytype, contract_status, rentcycle, firstdate,
+      signdate, agentman, rentmode, quitdate, property_name,
+      accountingunit, latefeesrate, rightid, stopdate, stopreason,
+      effectdate, deldate, id
     } = req.body;
     let target = await modelS.zycontract.findOne({
       where: {
@@ -342,7 +364,7 @@ router.all('/list/:page/:limit', async (req, res) => {
 
     let { page, limit } = req.params;
     let { contractno, renttype, startdate, enddate, agentman,
-      tenant, address, contract_status, simpleaddress,accountingunit } = req.body;
+      tenant, address, contract_status, simpleaddress, accountingunit } = req.body;
 
 
     let where2 = {};
@@ -405,8 +427,6 @@ router.all('/list/:page/:limit', async (req, res) => {
       where.enddate = { [Op.lte]: enddate };
     }
 
-
-
     //如果状态为不删除的
     if (contract_status === -2) {
       where.contract_status = {
@@ -417,60 +437,37 @@ router.all('/list/:page/:limit', async (req, res) => {
     }
 
     if (limit == -1) {
-      const amount = await modelS.zycontract.count({
-        where
-      });
-      limit = amount;
-      limit = parseInt(limit);
+      limit = 10;
       offset = (page - 1) * limit;
     } else {
       limit = parseInt(limit);
       offset = (page - 1) * limit;
     }
-
-
-    if (limit != 0) {
-      let { count, rows } = await modelS.zycontract.findAndCountAll({
-        where,
-        offset,
-        limit,
-        include: [{
-          model: modelS.zypropertyright,
-          where: where2
-        }],
-        order: [
-          ['updatedAt', 'DESC'],
-          ['createdAt', 'DESC']
-        ]
-      })
-      // rows.forEach(row => {
-      //   row['area'] = row.zypropertyrights[0].area; 
-      //   row['insidearea'] = row.zypropertyrights[0].area;
-      //   row['simpleaddress'] = row.zypropertyrights[0].simpleaddress;
-      // });
-      console.log(rows);
-      res.json({
-        code: 0,
-        rows,
-        total: count,
-        msg: '成功获得条件列表,共' + rows.length + '条记录'
-      })
-    } else {
-      const { count, rows } = await modelS.zycontract.findAndCountAll({
-        where,
-        offset,
-        order: [
-          ['updatedAt', 'DESC'],
-          ['createdAt', 'DESC']
-        ]
-      })
-      console.log(rows);
-      res.json({
-        code: 0,
-        rows,
-        msg: '成功获得条件列表,共' + count + '条记录'
-      })
-    }
+    let { count, rows } = await modelS.zycontract.findAndCountAll({
+      where,
+      offset,
+      limit,
+      include: [{
+        model: modelS.zypropertyright,
+        where: where2
+      }],
+      order: [
+        ['updatedAt', 'DESC'],
+        ['createdAt', 'DESC']
+      ]
+    })
+    // rows.forEach(row => {
+    //   row['area'] = row.zypropertyrights[0].area; 
+    //   row['insidearea'] = row.zypropertyrights[0].area;
+    //   row['simpleaddress'] = row.zypropertyrights[0].simpleaddress;
+    // });
+    console.log(rows);
+    res.json({
+      code: 0,
+      rows,
+      total: count,
+      msg: '成功获得条件列表,共' + rows.length + '条记录'
+    })
 
   } catch (error) {
     next(error);
