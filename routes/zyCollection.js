@@ -609,8 +609,9 @@ router.all('/list/:page/:limit', async (req, res) => {
       //   ['createdAt', 'DESC']
       // ]
       order: [
-        [Sequelize.cast(Sequelize.col('enddate'), 'SIGNED'), 'DESC'],
-        [Sequelize.cast(Sequelize.col('startdate'), 'SIGNED'), 'DESC']
+        ['createdAt', 'DESC'],
+        [Sequelize.cast(Sequelize.col('zycollection.enddate'), 'SIGNED'), 'DESC'],
+        [Sequelize.cast(Sequelize.col('zycollection.startdate'), 'SIGNED'), 'DESC']
       ]
     })
 
