@@ -604,17 +604,14 @@ router.all('/list/:page/:limit', async (req, res) => {
           where: where3,
         }]
       }],
+      // order: [
+      //   ['updatedAt', 'DESC'],
+      //   ['createdAt', 'DESC']
+      // ]
       order: [
-        [Sequelize.cast(Sequelize.col('year'), 'SIGNED'), 'DESC'],
-        [Sequelize.cast(Sequelize.col('month'), 'SIGNED'), 'DESC']
+        [Sequelize.cast(Sequelize.col('enddate'), 'SIGNED'), 'DESC'],
+        [Sequelize.cast(Sequelize.col('startdate'), 'SIGNED'), 'DESC']
       ]
-      // include: [{
-      //   model: modelS.zycontract,
-      //   through: {
-      //     attributes: ['contractno'],
-      //     where: {}
-      //   }
-      // }]
     })
 
     for (let index = 0; index < rows.length; index++) {

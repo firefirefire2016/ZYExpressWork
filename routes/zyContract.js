@@ -252,11 +252,10 @@ router.all('/create', async (req, res) => {
       ...target,
       contract_status: 0,
     })
-    console.log(contract.dataValues);
     res.json({
       code: 0,
-      data: contract.dataValues,
-      msg: '创建成功哈'
+      data: contract,
+      msg: '创建合同成功'
     })
 
   }

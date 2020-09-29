@@ -178,23 +178,8 @@ router.all('/list/:page/:limit',async (req,res)=>{
       where.contractid = contractid;    
     }
 
-    // where.contractid = {
-    //   [Op.col]:'zypropertyright.contractid'
-    // }
 
-    // if(contractid == null){
-    //   where.contractid = {
-    //     [Op.is]: null,
-    //   }      
-    // }
-    // else if(contractid == -1) {
-    //   //contractid =-1时搜索所有产权
-    // }
-    // else {
-    //   where.contractid = contractid;
-    // }
-
-    //如果合同状态为不要删除的
+    //如果产权状态为不要删除的
     if (property_status === -2) {
       where.property_status = {
         [Op.ne]: -1
@@ -216,6 +201,10 @@ router.all('/list/:page/:limit',async (req,res)=>{
       where,
       offset,
       limit,
+      order: [
+        ['updatedAt', 'DESC'],
+        ['createdAt', 'DESC']
+      ]
     })
     console.log(rows);
     res.json({
