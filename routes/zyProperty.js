@@ -36,6 +36,34 @@ router.all('/create',async (req,res)=>{
       feature,righttype,community,commonstate,unitno,usereason,rightfeature,
       area,insidearea,limitdate,otherstatus,remarks,
     } = req.body;
+    let where = {};
+    if(simpleaddress == null){
+      simpleaddress = ''
+    }
+    if(rightno == null){
+      rightno = ''
+    }
+    where = {
+      [Op.or]:[
+        {
+          simpleaddress,
+        },
+        {
+          rightno,
+        }
+      ]
+    }
+    
+    let obj = await modelS.zypropertyright.findOne({
+      where,
+    })
+    if(obj != null){
+      res.json({
+        code: 1,
+        msg: '物业名称或产权编号已存在，不能重复！',
+      })
+      return;
+    }
     let target = await modelS.zypropertyright.create({    
         ...newTarget,        
         property_status:1
