@@ -39,6 +39,8 @@ router.all('/startUse', async (req, res) => {
 
     let { id, contractno } = req.body;
 
+    let once_rent = 0;
+
     let where1 = {};
 
     where1.contractid = id;
@@ -131,7 +133,7 @@ router.all('/startUse', async (req, res) => {
 
           let date = new Date();
 
-          let currentMonth = parseInt(date.getMonth()) +1
+          let currentMonth = parseInt(date.getMonth()) + 1
 
           let currentYear = parseInt(date.getFullYear())
 
@@ -190,6 +192,11 @@ router.all('/startUse', async (req, res) => {
                 invoice_amount: 0,
               }
 
+              if (year === currentYear && dataMonth === currentMonth) {
+                once_rent = newCollection.amount_receivable;
+              }
+
+
               let nextRent = await modelS.zycollection.create({
                 ...newCollection,
               })
@@ -211,13 +218,16 @@ router.all('/startUse', async (req, res) => {
           id
         }
       })
+
       //如果存在则更新
       if (target) {
         target = await target.update({
           contract_status: 1,
+          once_rent,
         })
         res.json({
           code: 0,
+          once_rent,
           msg: '启用合同成功'
         })
       }
@@ -442,14 +452,20 @@ router.all('/list/:page/:limit', async (req, res) => {
       limit = parseInt(limit);
       offset = (page - 1) * limit;
     }
+
     let { count, rows } = await modelS.zycontract.findAndCountAll({
       where,
       offset,
       limit,
-      include: [{
-        model: modelS.zypropertyright,
-        where: where2
-      }],
+      include: [
+        {
+          model: modelS.zypropertyright,
+          where: where2
+        },
+        // {
+        //   model: modelS.zycollection,
+        // }
+      ],
       order: [
         ['updatedAt', 'DESC'],
         ['createdAt', 'DESC']
