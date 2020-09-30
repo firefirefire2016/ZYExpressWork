@@ -37,22 +37,22 @@ router.all('/create',async (req,res)=>{
       area,insidearea,limitdate,otherstatus,remarks,
     } = req.body;
     let where = {};
-    if(simpleaddress == null){
-      simpleaddress = ''
-    }
     if(rightno == null){
-      rightno = ''
+      where.simpleaddress = simpleaddress;
     }
-    where = {
-      [Op.or]:[
-        {
-          simpleaddress,
-        },
-        {
-          rightno,
-        }
-      ]
+    else {
+      where = {
+        [Op.or]:[
+          {
+            simpleaddress,
+          },
+          {
+            rightno,
+          }
+        ]
+      }
     }
+    
     
     let obj = await modelS.zypropertyright.findOne({
       where,
