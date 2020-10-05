@@ -38,7 +38,7 @@ router.all('/create', async (req, res) => {
       amount_received = 0, contractno,
       amount_receivable = 0, invoice_amount = 0,
       startdate, enddate, itemname, overstate, latefees,
-      invoice_limit, billno, collectdate, invoicedate
+      invoice_limit, collectdate, invoicedate
     } = req.body;
     let contract = await modelS.zycontract.findOne({
       where: {
@@ -46,6 +46,34 @@ router.all('/create', async (req, res) => {
       }
     })
     target.contractid = contract.id;
+    let getbillno = await modelS.zycollection.max('billno');
+
+    var today = new Date();
+
+    var year = today.getFullYear();
+
+    var month = parseInt(today.getMonth()) + 1;
+
+    var day = today.getDate();
+
+    if (month < 10) {
+      month = '0' + month;
+    }
+
+    if (day < 10) {
+      day = '0' + day;
+    }
+
+    let dateNo = year.toString() + month.toString() + day.toString();
+
+    if(parseInt(getbillno) < parseInt(dateNo) ){
+      getbillno =  parseInt(dateNo);
+    }
+    else{
+      getbillno = parseInt(getbillno) + 1;
+    }
+    
+    target.billno = getbillno;
     let collection = await modelS.zycollection.create({
       ...target,
       contract_status: 1,
@@ -293,7 +321,7 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
         where: where2,
         include: [{
           model: modelS.zypropertyright,
-          where:where3,
+          where: where3,
         }],
       }
     )
@@ -312,7 +340,7 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
       let item = await modelS.zycollection.findOne({
         where,
         offset,
-        limit,        
+        limit,
 
         order: [
           [Sequelize.cast(Sequelize.col('enddate'), 'SIGNED'), 'DESC'],
@@ -333,7 +361,7 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
       item.rentdate = row.rentdate;
 
       //判断该账单是否符合条件
-      if (parseInt(nowrealrent) === 1 &&  item.amount_received > 0) {
+      if (parseInt(nowrealrent) === 1 && item.amount_received > 0) {
         continue;
       }
 
@@ -344,7 +372,7 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
       if (parseInt(nowrealinvoice) === 1 && item.invoice_amount > 0) {
         continue;
       }
-      
+
       if (parseInt(nowrealinvoice) === 2 && item.invoice_amount <= 0) {
         continue;
       }
@@ -375,13 +403,13 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
 
       for (let index = 0; index < totalrows.length; index++) {
         const row = totalrows[index];
-        totalneedAmount += parseFloat(row.amount_receivable) ;
+        totalneedAmount += parseFloat(row.amount_receivable);
 
-        totalneedInvoice += parseFloat(row.invoice_limit) ;
+        totalneedInvoice += parseFloat(row.invoice_limit);
 
-        totalrealAmount += parseFloat(row.amount_received) ;
+        totalrealAmount += parseFloat(row.amount_received);
 
-        totalrealInvoice += parseFloat(row.invoice_amount) ;
+        totalrealInvoice += parseFloat(row.invoice_amount);
 
       }
 
@@ -404,14 +432,14 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
       if (isOwe != undefined && parseInt(isOwe) === 1 && oweAmount > 0) {
         continue
       }
-      else if(isOwe != undefined && parseInt(isOwe) === 2 && oweAmount <= 0){
+      else if (isOwe != undefined && parseInt(isOwe) === 2 && oweAmount <= 0) {
         continue
       }
 
       if (needInvoice != undefined && parseInt(needInvoice) === 1 && invoiceNeed > 0) {
         continue
       }
-      else if(needInvoice != undefined && parseInt(needInvoice) === 2 && invoiceNeed <= 0){
+      else if (needInvoice != undefined && parseInt(needInvoice) === 2 && invoiceNeed <= 0) {
         continue
       }
 
@@ -442,10 +470,10 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
 
     for (let index = offset; index < offset + limit; index++) {
       const element = targetRentlist[index];
-      if(element){
+      if (element) {
         newList.push(element);
       }
-      
+
     }
 
     console.log(newList);
@@ -599,8 +627,8 @@ router.all('/list/:page/:limit', async (req, res) => {
       include: [{
         model: modelS.zycontract,
         where: where2,
-        include:[{
-          model:modelS.zypropertyright,
+        include: [{
+          model: modelS.zypropertyright,
           where: where3,
         }]
       }],
@@ -618,7 +646,7 @@ router.all('/list/:page/:limit', async (req, res) => {
 
     for (let index = 0; index < rows.length; index++) {
       rows[index].dataValues.simpleaddress = rows[index].dataValues.zycontract.zypropertyrights[0].simpleaddress;
-      
+
     }
 
     console.log(rows);

@@ -90,7 +90,7 @@ router.all('/startUse', async (req, res) => {
 
           let dateNo = year + month + day;
 
-          if (parseFloat(row.enddate) > 20200101) {
+          if (parseFloat(row.enddate)) {
             let newCollection = {
               contractid: id,
               contract_status: 1,
