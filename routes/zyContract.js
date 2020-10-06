@@ -88,7 +88,7 @@ router.all('/startUse', async (req, res) => {
             day = '0' + day;
           }
 
-          let dateNo = year + month + day;
+          let dateNo = year.toString() + month.toString() + day.toString();
 
           if (parseFloat(row.enddate)) {
             let newCollection = {

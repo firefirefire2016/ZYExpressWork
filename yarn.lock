@@ -583,6 +583,14 @@ cors@^2.8.5:
     object-assign "^4"
     vary "^1"
 
+cron-parser@^2.7.3:
+  version "2.16.3"
+  resolved "https://registry.npm.taobao.org/cron-parser/download/cron-parser-2.16.3.tgz#acb8e405eed1733aac542fdf604cb7c1daf0204a"
+  integrity sha1-rLjkBe7RczqsVC/fYEy3wdrwIEo=
+  dependencies:
+    is-nan "^1.3.0"
+    moment-timezone "^0.5.31"
+
 cron@1.8.2:
   version "1.8.2"
   resolved "https://registry.npm.taobao.org/cron/download/cron-1.8.2.tgz#4ac5e3c55ba8c163d84f3407bde94632da8370ce"
@@ -663,6 +671,13 @@ deep-is@~0.1.3:
   version "0.1.3"
   resolved "https://registry.npm.taobao.org/deep-is/download/deep-is-0.1.3.tgz#b369d6fb5dbc13eecf524f91b070feedc357cf34"
   integrity sha1-s2nW+128E+7PUk+RsHD+7cNXzzQ=
+
+define-properties@^1.1.3:
+  version "1.1.3"
+  resolved "https://registry.npm.taobao.org/define-properties/download/define-properties-1.1.3.tgz#cf88da6cbee26fe6db7094f61d870cbd84cee9f1"
+  integrity sha1-z4jabL7ib+bbcJT2HYcMvYTO6fE=
+  dependencies:
+    object-keys "^1.0.12"
 
 degenerator@^1.0.4:
   version "1.0.4"
@@ -1171,6 +1186,13 @@ is-glob@^4.0.1, is-glob@~4.0.1:
   dependencies:
     is-extglob "^2.1.1"
 
+is-nan@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.npm.taobao.org/is-nan/download/is-nan-1.3.0.tgz#85d1f5482f7051c2019f5673ccebdb06f3b0db03"
+  integrity sha1-hdH1SC9wUcIBn1ZzzOvbBvOw2wM=
+  dependencies:
+    define-properties "^1.1.3"
+
 is-number@^7.0.0:
   version "7.0.0"
   resolved "https://registry.npm.taobao.org/is-number/download/is-number-7.0.0.tgz#7535345b896734d5f80c4d06c50955527a14f12b"
@@ -1290,6 +1312,11 @@ log-driver@^1.2.7:
   version "1.2.7"
   resolved "https://registry.npm.taobao.org/log-driver/download/log-driver-1.2.7.tgz#63b95021f0702fedfa2c9bb0a24e7797d71871d8"
   integrity sha1-Y7lQIfBwL+36LJuwok53l9cYcdg=
+
+long-timeout@0.1.1:
+  version "0.1.1"
+  resolved "https://registry.npm.taobao.org/long-timeout/download/long-timeout-0.1.1.tgz#9721d788b47e0bcb5a24c2e2bee1a0da55dab514"
+  integrity sha1-lyHXiLR+C8taJMLivuGg2lXatRQ=
 
 long@^4.0.0:
   version "4.0.0"
@@ -1502,6 +1529,15 @@ next-tick@~1.0.0:
   resolved "https://registry.npm.taobao.org/next-tick/download/next-tick-1.0.0.tgz#ca86d1fe8828169b0120208e3dc8424b9db8342c"
   integrity sha1-yobR/ogoFpsBICCOPchCS524NCw=
 
+node-schedule@^1.3.2:
+  version "1.3.2"
+  resolved "https://registry.npm.taobao.org/node-schedule/download/node-schedule-1.3.2.tgz#d774b383e2a6f6ade59eecc62254aea07cd758cb"
+  integrity sha1-13Szg+Km9q3lnuzGIlSuoHzXWMs=
+  dependencies:
+    cron-parser "^2.7.3"
+    long-timeout "0.1.1"
+    sorted-array-functions "^1.0.0"
+
 nopt@^4.0.3:
   version "4.0.3"
   resolved "https://registry.npm.taobao.org/nopt/download/nopt-4.0.3.tgz?cache=0&sync_timestamp=1589682726660&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fnopt%2Fdownload%2Fnopt-4.0.3.tgz#a375cad9d02fd921278d954c2254d5aa57e15e48"
@@ -1527,6 +1563,11 @@ object-assign@^4:
   version "4.1.1"
   resolved "https://registry.npm.taobao.org/object-assign/download/object-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
   integrity sha1-IQmtx5ZYh8/AXLvUQsrIv7s2CGM=
+
+object-keys@^1.0.12:
+  version "1.1.1"
+  resolved "https://registry.npm.taobao.org/object-keys/download/object-keys-1.1.1.tgz#1c47f272df277f3b1daf061677d9c82e2322c60e"
+  integrity sha1-HEfyct8nfzsdrwYWd9nILiMixg4=
 
 on-finished@~2.3.0:
   version "2.3.0"
@@ -2093,6 +2134,11 @@ socks@~2.3.2:
   dependencies:
     ip "1.1.5"
     smart-buffer "^4.1.0"
+
+sorted-array-functions@^1.0.0:
+  version "1.3.0"
+  resolved "https://registry.npm.taobao.org/sorted-array-functions/download/sorted-array-functions-1.3.0.tgz?cache=0&sync_timestamp=1598356380832&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fsorted-array-functions%2Fdownload%2Fsorted-array-functions-1.3.0.tgz#8605695563294dffb2c9796d602bd8459f7a0dd5"
+  integrity sha1-hgVpVWMpTf+yyXltYCvYRZ96DdU=
 
 source-map-support@0.5.16:
   version "0.5.16"
