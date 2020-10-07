@@ -138,21 +138,21 @@ router.all('/startUse', async (req, res) => {
           let currentYear = parseInt(date.getFullYear())
 
           for (let year = startYear; year <= currentYear; year++) {
-            if (year < 2020) {
-              let leftyear = 2020 - year;
-              let leftmonth = 12 - startMonth;
-              let leftmonths = leftyear * 12 + leftmonth + 1;
-              realMonth = ((leftmonths - startMonth) % cycle);//取得余数
-              if (realMonth > 0) {
-                //1月份减去余数得跨年前的月份，再加上周期，再减去12月，可得2020年账单开始的月份
-                dataMonth = 13 - realMonth + cycle - 12;
-              }
-              else {
-                dataMonth = 1;
-              }
-              year = 2019;
-              continue;
-            }
+            // if (year < 2020) {
+            //   let leftyear = 2020 - year;
+            //   let leftmonth = 12 - startMonth;
+            //   let leftmonths = leftyear * 12 + leftmonth + 1;
+            //   realMonth = ((leftmonths - startMonth) % cycle);//取得余数
+            //   if (realMonth > 0) {
+            //     //1月份减去余数得跨年前的月份，再加上周期，再减去12月，可得2020年账单开始的月份
+            //     dataMonth = 13 - realMonth + cycle - 12;
+            //   }
+            //   else {
+            //     dataMonth = 1;
+            //   }
+            //   year = 2019;
+            //   continue;
+            // }
             if (dataMonth > 12) {
               dataMonth = dataMonth - 12;
             }
