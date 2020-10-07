@@ -459,6 +459,10 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
         item.needInvoice = '无欠票';
       }
 
+      if(item.overstate === '1' || item.overstate === '2'){
+        item.isWarn = true;
+      }
+
       targetRentlist.push(item);
 
     }
@@ -646,7 +650,9 @@ router.all('/list/:page/:limit', async (req, res) => {
 
     for (let index = 0; index < rows.length; index++) {
       rows[index].dataValues.simpleaddress = rows[index].dataValues.zycontract.zypropertyright.simpleaddress;
-
+      if(rows[index].dataValues.overstate === '1' || rows[index].dataValues.overstate === '2'){
+        rows[index].dataValues.isWarn = true;
+      }
     }
 
     console.log(rows);

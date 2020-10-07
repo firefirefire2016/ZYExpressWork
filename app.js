@@ -370,7 +370,7 @@ const updateRent = async () => {
 
 }
 
-
+//updateRent();
 
 const updateContract = async () => {
 
@@ -481,19 +481,20 @@ function scheduleRecurrenceRule() {
   // rule.dayOfWeek = 2;
   // rule.month = 3;
   // rule.dayOfMonth = 1;
-  // rule.hour = 1;
+   rule.hour = 5;
   // rule.minute = 42;
-  rule.second = 0;
+  //rule.second = 0;
 
   schedule.scheduleJob(rule, function () {
     updateContract();
+    updateRent();
   });
 
 }
 
 
 
-//scheduleRecurrenceRule();
+scheduleRecurrenceRule();
 
 
 function scheduleCancel() {

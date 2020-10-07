@@ -72,23 +72,23 @@ router.all('/startUse', async (req, res) => {
         //如果是首期收款
         if (parseInt(row.rentcycle) === 1) {
 
-          var today = new Date();
+          // var today = new Date();
 
-          var year = today.getFullYear();
+          // var year = today.getFullYear();
 
-          var month = parseInt(today.getMonth()) + 1;
+          // var month = parseInt(today.getMonth()) + 1;
 
-          var day = today.getDate();
+          // var day = today.getDate();
 
-          if (month < 10) {
-            month = '0' + month;
-          }
+          // if (month < 10) {
+          //   month = '0' + month;
+          // }
 
-          if (day < 10) {
-            day = '0' + day;
-          }
+          // if (day < 10) {
+          //   day = '0' + day;
+          // }
 
-          let dateNo = year.toString() + month.toString() + day.toString();
+          // let dateNo = year.toString() + month.toString() + day.toString();
 
           if (parseFloat(row.enddate)) {
             let newCollection = {
@@ -99,10 +99,11 @@ router.all('/startUse', async (req, res) => {
               enddate: row.enddate,
               amount_receivable: row.endamount,
               invoice_limit: row.endamount,
-              billno: dateNo + '001',
-              itemname: '0',
+              billno: row.startdate + '001',
+              itemname: '1',
               amount_received: row.endamount,
               invoice_amount: row.endamount,
+              overstate:3,
             }
 
             let firstRent = await modelS.zycollection.create({
@@ -204,6 +205,7 @@ router.all('/startUse', async (req, res) => {
                 itemname: '1',
                 amount_received: row.endamount,
                 invoice_amount: row.endamount,
+                overstate:3,
               }
 
               if (year === currentYear && dataMonth + cycle > currentMonth &&
