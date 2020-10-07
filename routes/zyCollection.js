@@ -38,7 +38,7 @@ router.all('/create', async (req, res) => {
       amount_received = 0, contractno,
       amount_receivable = 0, invoice_amount = 0,
       startdate, enddate, itemname, overstate, latefees,
-      invoice_limit, collectdate, invoicedate
+      invoice_limit, collectdate, invoicedate,contract_status,
     } = req.body;
     let contract = await modelS.zycontract.findOne({
       where: {
@@ -64,7 +64,7 @@ router.all('/create', async (req, res) => {
       day = '0' + day;
     }
 
-    let dateNo = year.toString() + month.toString() + day.toString();
+    let dateNo = year.toString() + month.toString() + day.toString() + '001';
 
     if(parseInt(getbillno) < parseInt(dateNo) ){
       getbillno =  parseInt(dateNo);
@@ -76,7 +76,6 @@ router.all('/create', async (req, res) => {
     target.billno = getbillno;
     let collection = await modelS.zycollection.create({
       ...target,
-      contract_status: 1,
       status: 1
     })
     console.log(collection);
@@ -158,7 +157,7 @@ router.all('/find/:id', async (req, res) => {
   }
 })
 
-//修改目标状态，比如已删除
+//修改目标状态，比如已删除,该方法已作废，合同状态修改后，账单状态不变
 router.all('/delbyContract', async (req, res) => {
   try {
     let newStatus = { contract_status, id, status } = req.body;
@@ -197,7 +196,7 @@ router.all('/update_status', async (req, res) => {
       }
     })
     //如果存在则更新为状态
-    if (target && target.contract_status != contract_status) {
+    if (target && target.status != status) {
       target = await target.update({
         ...newStatus
       })
@@ -269,12 +268,15 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
 
     //如果状态为不要删除的
     if (status === -2) {
+      where.status = {
+        [Op.ne]: -1
+      }
     }
 
     //如果合同状态为不要删除的
     if (contract_status === -2) {
       where2.contract_status = {
-        [Op.gt]: 0
+        [Op.gte]: 0
       }
     } else {
       where2.contract_status = contract_status;
@@ -536,17 +538,15 @@ router.all('/list/:page/:limit', async (req, res) => {
 
     //如果状态为不要删除的
     if (status === -2) {
-      //   where.status = {
-      //     [Op.ne]: -1
-      //   }
-      // } else {
-      //   where.status = status;
+        where.status = {
+          [Op.ne]: -1
+        }
     }
 
     //如果合同状态为不要删除的
     if (contract_status === -2) {
       where2.contract_status = {
-        [Op.gt]: 0
+        [Op.gte]: 0
       }
     } else {
       where2.contract_status = contract_status;

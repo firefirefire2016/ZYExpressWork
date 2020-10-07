@@ -186,13 +186,14 @@ router.all('/startUse', async (req, res) => {
                 enddate,
                 amount_receivable: row.endamount,
                 invoice_limit: row.endamount,
-                billno: contractno + startdate + '0' + count,
+                billno: startdate + '00' + count,
                 itemname: '1',
                 amount_received: 0,
                 invoice_amount: 0,
               }
 
-              if (year === currentYear && dataMonth === currentMonth) {
+              if (year === currentYear && dataMonth + cycle > currentMonth &&
+                dataMonth <= currentMonth) {
                 once_rent = newCollection.amount_receivable;
               }
 
