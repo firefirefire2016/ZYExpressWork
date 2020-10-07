@@ -94,14 +94,15 @@ router.all('/startUse', async (req, res) => {
             let newCollection = {
               contractid: id,
               contract_status: 1,
+              status:1,
               startdate: row.startdate,
               enddate: row.enddate,
               amount_receivable: row.endamount,
               invoice_limit: row.endamount,
               billno: dateNo + '001',
               itemname: '0',
-              amount_received: 0,
-              invoice_amount: 0,
+              amount_received: row.endamount,
+              invoice_amount: row.endamount,
             }
 
             let firstRent = await modelS.zycollection.create({
@@ -137,7 +138,15 @@ router.all('/startUse', async (req, res) => {
 
           let currentYear = parseInt(date.getFullYear())
 
-          for (let year = startYear; year <= currentYear; year++) {
+          let _endMonth = 12;
+
+          let _endYear = currentYear;
+
+          if(_endYear > endYear){
+            _endYear = endYear;
+          }
+
+          for (let year = startYear; year <= _endYear; year++) {
             // if (year < 2020) {
             //   let leftyear = 2020 - year;
             //   let leftmonth = 12 - startMonth;
@@ -156,9 +165,13 @@ router.all('/startUse', async (req, res) => {
             if (dataMonth > 12) {
               dataMonth = dataMonth - 12;
             }
-            let count = 1;
+            if(year === endYear && currentMonth > endMonth){
+              _endMonth = endMonth;
+            }
+            //let count = 1;
             //通过周期性生成账单
-            for (; dataMonth <= 12; dataMonth = dataMonth + cycle) {
+            for (; dataMonth <= _endMonth; dataMonth = dataMonth + cycle) {
+
               if (year === currentYear && dataMonth > currentMonth) {
                 break;
               }
@@ -182,19 +195,22 @@ router.all('/startUse', async (req, res) => {
               let newCollection = {
                 contractid: id,
                 contract_status: 1,
+                status:1,
                 startdate,
                 enddate,
                 amount_receivable: row.endamount,
                 invoice_limit: row.endamount,
-                billno: startdate + '00' + count,
+                billno: startdate + '001',
                 itemname: '1',
-                amount_received: 0,
-                invoice_amount: 0,
+                amount_received: row.endamount,
+                invoice_amount: row.endamount,
               }
 
               if (year === currentYear && dataMonth + cycle > currentMonth &&
                 dataMonth <= currentMonth) {
                 once_rent = newCollection.amount_receivable;
+                newCollection.amount_received = 0;
+                newCollection.invoice_amount = 0;
               }
 
 
@@ -202,7 +218,7 @@ router.all('/startUse', async (req, res) => {
                 ...newCollection,
               })
 
-              count++;
+              //count++;
 
               console.log(nextRent);
 

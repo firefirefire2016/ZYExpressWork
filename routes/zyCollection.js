@@ -358,7 +358,7 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
 
       item.contractno = row.contractno;
 
-      item.simpleaddress = row.zypropertyrights[0].simpleaddress;
+      item.simpleaddress = row.zypropertyright.simpleaddress;
 
       item.rentdate = row.rentdate;
 
@@ -645,7 +645,7 @@ router.all('/list/:page/:limit', async (req, res) => {
     })
 
     for (let index = 0; index < rows.length; index++) {
-      rows[index].dataValues.simpleaddress = rows[index].dataValues.zycontract.zypropertyrights[0].simpleaddress;
+      rows[index].dataValues.simpleaddress = rows[index].dataValues.zycontract.zypropertyright.simpleaddress;
 
     }
 
