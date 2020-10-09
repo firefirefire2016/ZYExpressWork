@@ -37,7 +37,9 @@ router.all('/list', async (req, res) => {
 router.all('/startUse', async (req, res) => {
   try {
 
-    let { id, contractno } = req.body;
+    let { id, contractno, rentdate } = req.body;
+
+    rentdate = parseInt(rentdate);
 
     let once_rent = 0;
 
@@ -65,6 +67,24 @@ router.all('/startUse', async (req, res) => {
 
       var rows = rentlists.rows;
 
+      var today = new Date();
+
+      var year = today.getFullYear();
+
+      var month = parseInt(today.getMonth()) + 1;
+
+      var day = today.getDate();
+
+      if (month < 10) {
+        month = '0' + month;
+      }
+
+      if (day < 10) {
+        day = '0' + day;
+      }
+
+      let dateNo = year.toString() + month.toString() + day.toString();
+
 
 
       for (let index = 0; index < rows.length; index++) {
@@ -72,23 +92,7 @@ router.all('/startUse', async (req, res) => {
         //如果是首期收款
         if (parseInt(row.rentcycle) === 1) {
 
-          var today = new Date();
 
-          var year = today.getFullYear();
-
-          var month = parseInt(today.getMonth()) + 1;
-
-          var day = today.getDate();
-
-          if (month < 10) {
-            month = '0' + month;
-          }
-
-          if (day < 10) {
-            day = '0' + day;
-          }
-
-          let dateNo = year.toString() + month.toString() + day.toString();
 
           if ((parseFloat(row.startdate) - parseFloat(dateNo) <= 30 &&
             parseFloat(row.startdate) > parseFloat(dateNo)) ||
@@ -112,6 +116,16 @@ router.all('/startUse', async (req, res) => {
               once_rent = newCollection.amount_receivable;
               newCollection.amount_received = 0;
               newCollection.invoice_amount = 0;
+              if (newCollection.amount_received < newCollection.amount_receivable
+                ) {
+                  let today = new Date().getDate();
+                  if(rentdate >= today && rentdate - today <= 3){
+                    newCollection.overstate = 1
+                  }
+                  if(today > rentdate){
+                    newCollection.overstate = 2
+                  }
+                }
             }
 
             let firstRent = await modelS.zycollection.create({
@@ -221,6 +235,16 @@ router.all('/startUse', async (req, res) => {
                 once_rent = newCollection.amount_receivable;
                 newCollection.amount_received = 0;
                 newCollection.invoice_amount = 0;
+                if (newCollection.amount_received < newCollection.amount_receivable
+                ) {
+                  let today = new Date().getDate();
+                  if(rentdate >= today && rentdate - today <= 3){
+                    newCollection.overstate = 1
+                  }
+                  if(today > rentdate){
+                    newCollection.overstate = 2
+                  }
+                }
               }
 
 
