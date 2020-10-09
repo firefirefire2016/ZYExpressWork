@@ -277,15 +277,29 @@ router.all('/create', async (req, res) => {
 
     delete target.id;
 
-    let contract = await modelS.zycontract.create({
-      ...target,
-      contract_status: 0,
+    let temp = await modelS.zycontract.findOne({
+      where: {
+        contractno
+      }
     })
-    res.json({
-      code: 0,
-      data: contract,
-      msg: '创建合同成功'
-    })
+
+    if(temp){
+      res.json({
+        code: 1,
+        msg: '合同编号已存在，不能重复创建'
+      })
+    }
+    else{
+      let contract = await modelS.zycontract.create({
+        ...target,
+        contract_status: 0,
+      })
+      res.json({
+        code: 0,
+        data: contract,
+        msg: '创建合同成功'
+      })
+    }    
 
   }
   catch (error) {
