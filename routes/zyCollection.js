@@ -282,6 +282,14 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
       where2.contract_status = contract_status;
     }
 
+    if (startdate && startdate.indexOf('-') !== -1) {
+      startdate = startdate.replace(/-/g, "");
+    }
+
+    if (enddate && enddate.indexOf('-') !== -1) {
+      enddate = enddate.replace(/-/g, "");
+    }
+
     if (startdate != null) {
       where.startdate = { [Op.gte]: startdate };
     }
@@ -554,6 +562,14 @@ router.all('/list/:page/:limit', async (req, res) => {
       }
     } else {
       where2.contract_status = contract_status;
+    }
+
+    if (startdate && startdate.indexOf('-') !== -1) {
+      startdate = startdate.replace(/-/g, "");
+    }
+
+    if (enddate && enddate.indexOf('-') !== -1) {
+      enddate = enddate.replace(/-/g, "");
     }
 
     if (startdate != null) {
