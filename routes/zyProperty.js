@@ -92,8 +92,8 @@ router.all('/create', async (req, res) => {
 router.all('/update', async (req, res) => {
   try {
     let newTarget = {
-      simpleaddress, address, owner, rightno,
-      feature, righttype, community, commonstate, unitno, usereason, rightfeature,
+      simpleaddress, address, owner, rightno,feature, righttype, community,
+       commonstate, unitno, usereason, rightfeature,
       area, insidearea, limitdate, otherstatus, remarks, id, contractid
     } = req.body;
 
@@ -111,13 +111,24 @@ router.all('/update', async (req, res) => {
           contractid
         }
       })
-      if (resetTemp.id === target.id) {
-        //return;
+      if(resetTemp){
+        if (resetTemp.id === target.id) {
+          //return;
+        }
+        else {
+          resetTemp = await resetTemp.update({
+            contractid: null
+          })
+          //如果存在则更新
+          if (target) {
+            target = await target.update({
+              ...newTarget
+            })
+  
+          }
+        }
       }
-      else {
-        resetTemp = await resetTemp.update({
-          contractid: null
-        })
+      else{
         //如果存在则更新
         if (target) {
           target = await target.update({
@@ -126,6 +137,7 @@ router.all('/update', async (req, res) => {
 
         }
       }
+      
 
     }
 
