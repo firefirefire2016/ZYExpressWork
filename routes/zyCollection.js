@@ -363,19 +363,19 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
       item.rentdate = row.rentdate;
 
       //判断该账单是否符合条件
-      if (parseInt(nowrealrent) === 1 && item.amount_received > 0) {
+      if (parseInt(nowrealrent) === 1 && item.amount_received < item.amount_receivable) {
         continue;
       }
 
-      if (parseInt(nowrealrent) === 2 && item.amount_received <= 0) {
+      if (parseInt(nowrealrent) === 2 && item.amount_received >= item.amount_receivable) {
         continue;
       }
 
-      if (parseInt(nowrealinvoice) === 1 && item.invoice_amount > 0) {
+      if (parseInt(nowrealinvoice) === 1 && item.invoice_amount < item.invoice_limit) {
         continue;
       }
 
-      if (parseInt(nowrealinvoice) === 2 && item.invoice_amount <= 0) {
+      if (parseInt(nowrealinvoice) === 2 && item.invoice_amount >= item.invoice_limit) {
         continue;
       }
 
@@ -579,27 +579,32 @@ router.all('/list/:page/:limit', async (req, res) => {
       where.overstate = overstate
     }
 
-    //选择未缴费，则查询实际收款为0的
-    if (parseInt(amount_select) === 1) {
-      where.amount_received = 0
-    }
-    //选择其他，则查询实际收款为大于0的
-    if (parseInt(amount_select) === 2) {
-      where.amount_received = {
-        [Op.gt]: 0
-      }
-    }
+    //选择已缴清，则查询实际收款大于应收的
+    // if (parseInt(amount_select) === 1) {
+      
+    //   where.amount_received ={
+    //     [Op.gte]:'amount_receivable'
+    //   }  
+
+    // }
+
+    // //选择其他，则查询实际收款小于应收的
+    // if (parseInt(amount_select) === 2) {
+    //   where.amount_received = {
+    //     [Op.lt]: 'amount_receivable'
+    //   }
+    // }
 
     //选择未缴费，则查询实际收款为0的
-    if (parseInt(invoice_select) === 1) {
-      where.invoice_amount = 0
-    }
-    //选择其他，则查询实际收款为大于0的
-    if (parseInt(invoice_select) === 2) {
-      where.invoice_amount = {
-        [Op.gt]: 0
-      }
-    }
+    // if (parseInt(invoice_select) === 1) {
+    //   where.invoice_amount = 0
+    // }
+    // //选择其他，则查询实际收款为大于0的
+    // if (parseInt(invoice_select) === 2) {
+    //   where.invoice_amount = {
+    //     [Op.gt]: 0
+    //   }
+    // }
 
     if (contractid) {
       where.contractid = contractid

@@ -72,29 +72,31 @@ router.all('/startUse', async (req, res) => {
         //如果是首期收款
         if (parseInt(row.rentcycle) === 1) {
 
-          // var today = new Date();
+          var today = new Date();
 
-          // var year = today.getFullYear();
+          var year = today.getFullYear();
 
-          // var month = parseInt(today.getMonth()) + 1;
+          var month = parseInt(today.getMonth()) + 1;
 
-          // var day = today.getDate();
+          var day = today.getDate();
 
-          // if (month < 10) {
-          //   month = '0' + month;
-          // }
+          if (month < 10) {
+            month = '0' + month;
+          }
 
-          // if (day < 10) {
-          //   day = '0' + day;
-          // }
+          if (day < 10) {
+            day = '0' + day;
+          }
 
-          // let dateNo = year.toString() + month.toString() + day.toString();
+          let dateNo = year.toString() + month.toString() + day.toString();
 
-          if (parseFloat(row.enddate)) {
+          if ((parseFloat(row.startdate) - parseFloat(dateNo) <= 30 &&
+            parseFloat(row.startdate) > parseFloat(dateNo)) ||
+            parseFloat(row.startdate) < parseFloat(dateNo)) {
             let newCollection = {
               contractid: id,
               contract_status: 1,
-              status:1,
+              status: 1,
               startdate: row.startdate,
               enddate: row.enddate,
               amount_receivable: row.endamount,
@@ -103,7 +105,13 @@ router.all('/startUse', async (req, res) => {
               itemname: '1',
               amount_received: row.endamount,
               invoice_amount: row.endamount,
-              overstate:3,
+              overstate: 3,
+            }
+
+            if (Math.abs(parseFloat(row.startdate) - parseFloat(dateNo)) <= 30) {
+              once_rent = newCollection.amount_receivable;
+              newCollection.amount_received = 0;
+              newCollection.invoice_amount = 0;
             }
 
             let firstRent = await modelS.zycollection.create({
@@ -143,7 +151,7 @@ router.all('/startUse', async (req, res) => {
 
           let _endYear = currentYear;
 
-          if(_endYear > endYear){
+          if (_endYear > endYear) {
             _endYear = endYear;
           }
 
@@ -166,7 +174,7 @@ router.all('/startUse', async (req, res) => {
             if (dataMonth > 12) {
               dataMonth = dataMonth - 12;
             }
-            if(year === endYear && currentMonth > endMonth){
+            if (year === endYear && currentMonth > endMonth) {
               _endMonth = endMonth;
             }
             //let count = 1;
@@ -196,7 +204,7 @@ router.all('/startUse', async (req, res) => {
               let newCollection = {
                 contractid: id,
                 contract_status: 1,
-                status:1,
+                status: 1,
                 startdate,
                 enddate,
                 amount_receivable: row.endamount,
@@ -205,7 +213,7 @@ router.all('/startUse', async (req, res) => {
                 itemname: '1',
                 amount_received: row.endamount,
                 invoice_amount: row.endamount,
-                overstate:3,
+                overstate: 3,
               }
 
               if (year === currentYear && dataMonth + cycle > currentMonth &&
@@ -283,13 +291,13 @@ router.all('/create', async (req, res) => {
       }
     })
 
-    if(temp){
+    if (temp) {
       res.json({
         code: 1,
         msg: '合同编号已存在，不能重复创建'
       })
     }
-    else{
+    else {
       let contract = await modelS.zycontract.create({
         ...target,
         contract_status: 0,
@@ -299,7 +307,7 @@ router.all('/create', async (req, res) => {
         data: contract,
         msg: '创建合同成功'
       })
-    }    
+    }
 
   }
   catch (error) {
