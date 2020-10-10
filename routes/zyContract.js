@@ -104,7 +104,7 @@ router.all('/startUse', async (req, res) => {
             parseFloat(row.startdate) < parseFloat(dateNo)) {
             let newCollection = {
               contractid: id,
-              contract_status: 1,
+              //contract_status: 1,
               status: 1,
               startdate: row.startdate,
               enddate: row.enddate,
@@ -222,7 +222,7 @@ router.all('/startUse', async (req, res) => {
 
               let newCollection = {
                 contractid: id,
-                contract_status: 1,
+              //  contract_status: 1,
                 status: 1,
                 startdate,
                 enddate,
@@ -275,19 +275,27 @@ router.all('/startUse', async (req, res) => {
         }
       })
 
+      let where3 = {};
+
+      where3.contractid = id;
+
+      where3.property_status = {
+        [Op.ne]: -1
+      }
+
       let property = await modelS.zypropertyright.findOne({
-        where: where1
+        where: where3
       })
 
       if (property == null) {
         res.json({
           code: 1,
-          msg: '产权为空，产权变更失败'
+          msg: '产权为空，启用及变更失败'
         })
       }
 
       //如果存在则更新
-      if (target && property) {        
+      if (target && property) {
 
         if (parseFloat(target.enddate) - parseFloat(dateNo) <= 300) {
           target = await target.update({
