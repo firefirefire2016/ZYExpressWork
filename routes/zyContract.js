@@ -62,6 +62,11 @@ router.all('/startUse', async (req, res) => {
       })
     }
 
+
+
+
+
+
     //假如存在租金标准，则自动生成2020年1月开始的账单
     if (rentlists.count >= 1) {
 
@@ -117,15 +122,15 @@ router.all('/startUse', async (req, res) => {
               newCollection.amount_received = 0;
               newCollection.invoice_amount = 0;
               if (newCollection.amount_received < newCollection.amount_receivable
-                ) {
-                  let today = new Date().getDate();
-                  if(rentdate >= today && rentdate - today <= 3){
-                    newCollection.overstate = 1
-                  }
-                  if(today > rentdate){
-                    newCollection.overstate = 2
-                  }
+              ) {
+                let today = new Date().getDate();
+                if (rentdate >= today && rentdate - today <= 3) {
+                  newCollection.overstate = 1
                 }
+                if (today > rentdate) {
+                  newCollection.overstate = 2
+                }
+              }
             }
 
             let firstRent = await modelS.zycollection.create({
@@ -238,10 +243,10 @@ router.all('/startUse', async (req, res) => {
                 if (newCollection.amount_received < newCollection.amount_receivable
                 ) {
                   let today = new Date().getDate();
-                  if(rentdate >= today && rentdate - today <= 3){
+                  if (rentdate >= today && rentdate - today <= 3) {
                     newCollection.overstate = 1
                   }
-                  if(today > rentdate){
+                  if (today > rentdate) {
                     newCollection.overstate = 2
                   }
                 }
@@ -270,12 +275,47 @@ router.all('/startUse', async (req, res) => {
         }
       })
 
-      //如果存在则更新
-      if (target) {
-        target = await target.update({
-          contract_status: 1,
-          once_rent,
+      let property = await modelS.zypropertyright.findOne({
+        where: where1
+      })
+
+      if (property == null) {
+        res.json({
+          code: 1,
+          msg: '产权为空，产权变更失败'
         })
+      }
+
+      //如果存在则更新
+      if (target && property) {        
+
+        if (parseFloat(target.enddate) - parseFloat(dateNo) <= 300) {
+          target = await target.update({
+            contract_status: 2,
+            once_rent,
+          })
+          property = await property.update({
+            property_status: 2,
+          })
+        }
+        if (parseFloat(dateNo) > parseFloat(target.enddate)) {
+          target = await target.update({
+            contract_status: 3,
+            once_rent,
+          })
+          property = await property.update({
+            property_status: 3,
+          })
+        }
+        if (parseFloat(target.enddate) - parseFloat(dateNo) > 300) {
+          target = await target.update({
+            contract_status: 1,
+            once_rent,
+          })
+          property = await property.update({
+            property_status: 0,
+          })
+        }
         res.json({
           code: 0,
           once_rent,

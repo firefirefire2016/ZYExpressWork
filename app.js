@@ -154,7 +154,7 @@ const addRentByContract = async () => {
                 amount_receivable: row.endamount,
                 invoice_limit: row.endamount,
                 billno: dateNo + '001',
-                overstate:3,
+                overstate: 3,
                 itemname: '1',
                 amount_received: 0,
                 invoice_amount: 0,
@@ -218,7 +218,7 @@ const addRentByContract = async () => {
                     contract_status: contract_status,
                     startdate,
                     enddate,
-                    overstate:3,
+                    overstate: 3,
                     amount_receivable: row.endamount,
                     invoice_limit: row.endamount,
                     billno: startdate + '001',
@@ -312,17 +312,17 @@ const updateRent = async () => {
       //先获取它的收款提醒日日期
       let startdate = row.startdate;
       startdate = startdate.substr(0, 6);
-      let rentdate = parseInt(row.zycontract.rentdate) ;
-      if(rentdate < 10){
+      let rentdate = parseInt(row.zycontract.rentdate);
+      if (rentdate < 10) {
         rentdate = '0' + rentdate;
       }
       let warndate = parseInt(startdate + rentdate.toString());
       let today = parseInt(getToday());
 
       //假如未逾期，但距离提醒日小于3天
-      if (today <= warndate && warndate - today <= 3 && row.overstate === '3' && 
+      if (today <= warndate && warndate - today <= 3 && row.overstate === '3' &&
         (row.amount_receivable > row.amount_received || row.invoice_limit > row.invoice_amount)
-         ) {
+      ) {
         //更新为即将逾期
         let warnState = 1;
         let target = await modelS.zycollection.findOne({
@@ -342,8 +342,8 @@ const updateRent = async () => {
       }
 
       //假如日期已超过提醒日期
-      if (today > warndate && (row.overstate === '1' || row.overstate === '3') && 
-      (row.amount_receivable > row.amount_received || row.invoice_limit > row.invoice_amount)) {
+      if (today > warndate && (row.overstate === '1' || row.overstate === '3') &&
+        (row.amount_receivable > row.amount_received || row.invoice_limit > row.invoice_amount)) {
         //更新为已逾期
         let overState = 2;
         let target = await modelS.zycollection.findOne({
@@ -395,6 +395,8 @@ const updateContract = async () => {
 
     console.log('总共有' + count + '个：');
 
+
+
     rows.forEach(async row => {
       //console.log(JSON.stringify(row));
       //现在开始判断他的合同状态
@@ -420,6 +422,30 @@ const updateContract = async () => {
         else {
           console.log('更新失败，目标不存在');
         }
+
+        let where3 = {};
+
+        where3.contractid = row.id;
+
+        where3.status = {
+          [Op.ne]: -1
+        }
+
+        let property = await modelS.zypropertyright.findOne({
+          where: where3
+        })
+
+        if (property == null) {
+          res.json({
+            code: 1,
+            msg: '产权为空，产权变更失败'
+          })
+        }
+        else if(property.property_status === 0){
+          property = await property.update({
+            property_status: warnStatus,
+          })
+        }
       }
 
       //假如日期已超过结束日期
@@ -439,6 +465,30 @@ const updateContract = async () => {
         }
         else {
           console.log('更新失败，目标不存在');
+        }
+
+        let where3 = {};
+
+        where3.contractid = row.id;
+
+        where3.status = {
+          [Op.ne]: -1
+        }
+
+        let property = await modelS.zypropertyright.findOne({
+          where: where3
+        })
+
+        if (property == null) {
+          res.json({
+            code: 1,
+            msg: '产权为空，产权变更失败'
+          })
+        }
+        else if(property.property_status < 3){
+          property = await property.update({
+            property_status: overStatus,
+          })
         }
       }
 
@@ -481,7 +531,7 @@ function scheduleRecurrenceRule() {
   // rule.dayOfWeek = 2;
   // rule.month = 3;
   // rule.dayOfMonth = 1;
-   rule.hour = 5;
+  rule.hour = 5;
   // rule.minute = 42;
   //rule.second = 0;
 
