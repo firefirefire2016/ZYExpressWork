@@ -370,7 +370,7 @@ const updateRent = async () => {
 
 }
 
-//updateRent();
+updateRent();
 
 const updateContract = async () => {
 
@@ -506,6 +506,8 @@ const updateContract = async () => {
 
 
 }
+
+updateContract();
 
 function getToday() {
   var today = new Date();
