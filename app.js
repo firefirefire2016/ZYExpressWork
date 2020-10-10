@@ -284,7 +284,7 @@ const updateRent = async () => {
     }
 
     where.overstate = {
-      [Op.or]: [1, 3]//逾期情况是1即将逾期3正常的
+      [Op.or]: [1, 2,3]//逾期情况是1即将逾期3正常的
     }
 
     where2.contract_status = {
@@ -333,7 +333,7 @@ const updateRent = async () => {
         //如果存在则更新
         if (target) {
           target = await target.update({
-            overstate: warnState//合同状态1为即将逾期
+            overstate: warnState//状态1为即将逾期
           })
         }
         else {
@@ -355,6 +355,25 @@ const updateRent = async () => {
         if (target) {
           target = await target.update({
             overstate: overState//逾期情况2为已逾期
+          })
+        }
+        else {
+          console.log('更新失败，目标不存在');
+        }
+      }
+
+      if(row.amount_receivable <= row.amount_received && row.invoice_limit <= row.invoice_amount){
+        //更新为正常
+        let normal = 3;
+        let target = await modelS.zycollection.findOne({
+          where: {
+            id: row.id
+          }
+        })
+        //如果存在则更新
+        if (target) {
+          target = await target.update({
+            overstate: normal//逾期情况3是正常
           })
         }
         else {

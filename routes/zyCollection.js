@@ -32,50 +32,131 @@ router.all('/list', async (req, res) => {
 })
 
 
+function getToday() {
+  var today = new Date();
+
+  var year = today.getFullYear();
+
+  var month = parseInt(today.getMonth()) + 1;
+
+  var day = today.getDate();
+
+  if (month < 10) {
+    month = '0' + month;
+  }
+
+  if (day < 10) {
+    day = '0' + day;
+  }
+
+  let dateNo = year.toString() + month.toString() + day.toString();
+
+  return dateNo;
+
+}
+
+function strToTime(str) {
+  console.log(str);
+
+  str = str.toString();
+
+  if (str.includes('-')) {
+    return str;
+  }
+
+  var year = str.substring(0, 4);
+
+  var month = str.substring(4, 6);
+
+  var day = str.substring(6, 8);
+
+  return year + '-' + month + '-' + day;
+}
+
+
+function timeToStr(time) {
+  console.log(time);
+  return time.replace(/-/g, "");
+
+}
+
 router.all('/create', async (req, res) => {
   try {
     let target = {
       amount_received = 0, contractno,
       amount_receivable = 0, invoice_amount = 0,
-      startdate, enddate, itemname, overstate, latefees,
-      invoice_limit, collectdate, invoicedate,contract_status,
+      startdate, enddate, itemname, latefees,
+      invoice_limit, collectdate, invoicedate, contract_status,
     } = req.body;
     let contract = await modelS.zycontract.findOne({
       where: {
         contractno
       }
     })
+
     target.contractid = contract.id;
+
     let getbillno = await modelS.zycollection.max('billno');
 
-    var today = new Date();
+    let dateNo = getToday() + '001';
 
-    var year = today.getFullYear();
-
-    var month = parseInt(today.getMonth()) + 1;
-
-    var day = today.getDate();
-
-    if (month < 10) {
-      month = '0' + month;
+    if (parseInt(getbillno) < parseInt(dateNo)) {
+      getbillno = parseInt(dateNo);
     }
-
-    if (day < 10) {
-      day = '0' + day;
-    }
-
-    let dateNo = year.toString() + month.toString() + day.toString() + '001';
-
-    if(parseInt(getbillno) < parseInt(dateNo) ){
-      getbillno =  parseInt(dateNo);
-    }
-    else{
+    else {
       getbillno = parseInt(getbillno) + 1;
     }
-    
+
     target.billno = getbillno;
+
+    let normal = 3;
+
+    let warn = 1;
+
+    let over = 2;
+
+    let overstate = normal;
+
+    startdate = timeToStr(startdate);
+
+    startdate = startdate.substr(0, 6);
+
+    let rentdate = parseInt(contract.rentdate);
+
+    if (rentdate < 10) {
+      rentdate = '0' + rentdate;
+    }
+
+    let warndate = parseInt(startdate + rentdate.toString());
+
+    let today = parseInt(getToday());
+
+    amount_receivable = parseFloat(amount_receivable);
+
+    amount_received = parseFloat(amount_received);
+
+    invoice_limit = parseFloat(invoice_limit);
+
+    invoice_amount = parseFloat(invoice_amount);
+
+    //假如未逾期，但距离提醒日小于3天 则是即将逾期
+    if (today <= warndate && warndate - today <= 3 &&
+      (amount_receivable > amount_received || invoice_limit > invoice_amount)
+    ) {
+      overstate = warn;
+    }
+
+    //假如逾期， 则是逾期
+    if (today > warndate &&
+      (amount_receivable > amount_received || invoice_limit > invoice_amount)) {
+        overstate = over;
+    }
+
+
+
     let collection = await modelS.zycollection.create({
       ...target,
+      overstate,
       status: 1
     })
     console.log(collection);
@@ -103,7 +184,7 @@ router.all('/update', async (req, res) => {
     let newTarget = {
       amount_received, id, contractno,
       amount_receivable, invoice_amount,
-      startdate, enddate, itemname, overstate, latefees,
+      startdate, enddate, itemname, latefees,
       invoice_limit, billno, collectdate, invoicedate
     } = req.body;
     let contract = await modelS.zycontract.findOne({
@@ -117,10 +198,56 @@ router.all('/update', async (req, res) => {
         id
       }
     })
+
+
+    let normal = 3;
+
+    let warn = 1;
+
+    let over = 2;
+
+    let overstate = normal;
+
+    startdate = timeToStr(startdate);
+
+    startdate = startdate.substr(0, 6);
+
+    let rentdate = parseInt(contract.rentdate);
+
+    if (rentdate < 10) {
+      rentdate = '0' + rentdate;
+    }
+
+    let warndate = parseInt(startdate + rentdate.toString());
+
+    let today = parseInt(getToday());
+
+    amount_receivable = parseFloat(amount_receivable);
+
+    amount_received = parseFloat(amount_received);
+
+    invoice_limit = parseFloat(invoice_limit);
+
+    invoice_amount = parseFloat(invoice_amount);
+
+    //假如未逾期，但距离提醒日小于3天 则是即将逾期
+    if (today <= warndate && warndate - today <= 3 &&
+      (amount_receivable > amount_received || invoice_limit > invoice_amount)
+    ) {
+      overstate = warn;
+    }
+
+    //假如逾期， 则是逾期
+    if (today > warndate &&
+      (amount_receivable > amount_received || invoice_limit > invoice_amount)) {
+        overstate = over;
+    }
+
     //如果存在则更新
     if (target) {
       target = await target.update({
-        ...newTarget
+        ...newTarget,
+        overstate,
       })
 
     }
@@ -467,7 +594,7 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
         item.needInvoice = '无欠票';
       }
 
-      if(item.overstate === '1' || item.overstate === '2'){
+      if (item.overstate === '1' || item.overstate === '2') {
         item.isWarn = true;
       }
 
@@ -550,9 +677,9 @@ router.all('/list/:page/:limit', async (req, res) => {
 
     //如果状态为不要删除的
     if (status === -2) {
-        where.status = {
-          [Op.ne]: -1
-        }
+      where.status = {
+        [Op.ne]: -1
+      }
     }
 
     //如果合同状态为不要删除的
@@ -597,7 +724,7 @@ router.all('/list/:page/:limit', async (req, res) => {
 
     //选择已缴清，则查询实际收款大于应收的
     // if (parseInt(amount_select) === 1) {
-      
+
     //   where.amount_received ={
     //     [Op.gte]:'amount_receivable'
     //   }  
@@ -671,7 +798,7 @@ router.all('/list/:page/:limit', async (req, res) => {
 
     for (let index = 0; index < rows.length; index++) {
       rows[index].dataValues.simpleaddress = rows[index].dataValues.zycontract.zypropertyright.simpleaddress;
-      if(rows[index].dataValues.overstate === '1' || rows[index].dataValues.overstate === '2'){
+      if (rows[index].dataValues.overstate === '1' || rows[index].dataValues.overstate === '2') {
         rows[index].dataValues.isWarn = true;
       }
     }
