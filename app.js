@@ -404,10 +404,13 @@ const updateContract = async () => {
       let enddate = parseInt(row.enddate);
       let today = parseInt(getToday());
 
+      let warnStatus = 2;
+
       //假如未过期，但在距离结束日期小于3个月
-      if (today < enddate && enddate - today <= 300 && row.contract_status === 1) {
+      if (today < enddate && enddate - today <= 300 && row.contract_status !== -1 &&
+        row.contract_status !== warnStatus) {
         //更新为即将到期
-        let warnStatus = 2;
+        
         let target = await modelS.zycontract.findOne({
           where: {
             id: row.id
@@ -441,17 +444,20 @@ const updateContract = async () => {
             msg: '产权为空，产权变更失败'
           })
         }
-        else if(property.property_status === 0){
+        else if(property.property_status !== -1 && property.property_status !== warnStatus){
           property = await property.update({
             property_status: warnStatus,
           })
         }
       }
 
+      let overStatus = 3;
+
       //假如日期已超过结束日期
-      if (today >= enddate && row.contract_status < 3) {
+      if (today >= enddate && row.contract_status !== -1 &&
+        row.contract_status !== overStatus) {
         //更新为已到期
-        let overStatus = 3;
+        
         let target = await modelS.zycontract.findOne({
           where: {
             id: row.id
@@ -485,7 +491,7 @@ const updateContract = async () => {
             msg: '产权为空，产权变更失败'
           })
         }
-        else if(property.property_status < 3){
+        else if(property.property_status !== -1 && property.property_status !== overStatus){
           property = await property.update({
             property_status: overStatus,
           })
