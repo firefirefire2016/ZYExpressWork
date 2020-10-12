@@ -82,12 +82,17 @@ function timeToStr(time) {
 
 router.all('/create', async (req, res) => {
   try {
-    let target = {
-      amount_received = 0, contractno,
-      amount_receivable = 0, invoice_amount = 0,
-      startdate, enddate, itemname, latefees,
-      invoice_limit = 0, collectdate, invoicedate, contract_status,
-    } = req.body;
+    // let target = {
+    //   amount_received : 0, invoice_limit : 0,
+    //   amount_receivable : 0, invoice_amount : 0,
+    //   //startdate, enddate, itemname, latefees,
+    //   //contractno, collectdate, invoicedate, contract_status,
+    // };
+    let target = { ...req.body};
+    let  {
+          startdate, enddate, itemname, latefees,
+          contractno, collectdate, invoicedate, contract_status,
+        } = req.body;
     let contract = await modelS.zycontract.findOne({
       where: {
         contractno
@@ -544,13 +549,22 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
 
       for (let index = 0; index < totalrows.length; index++) {
         const row = totalrows[index];
-        totalneedAmount += parseFloat(row.amount_receivable);
-
-        totalneedInvoice += parseFloat(row.invoice_limit);
-
-        totalrealAmount += parseFloat(row.amount_received);
-
-        totalrealInvoice += parseFloat(row.invoice_amount);
+        if(row.amount_receivable >= 0){
+          totalneedAmount += parseFloat(row.amount_receivable);
+        }
+        
+        if(row.invoice_limit >= 0){
+          totalneedInvoice += parseFloat(row.invoice_limit);
+        }
+        
+        if(row.amount_received >= 0){
+          totalrealAmount += parseFloat(row.amount_received);
+        }
+        
+        if(row.invoice_amount >= 0){
+          totalrealInvoice += parseFloat(row.invoice_amount);
+        }
+        
 
       }
 
