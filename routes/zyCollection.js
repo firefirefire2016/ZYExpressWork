@@ -86,7 +86,7 @@ router.all('/create', async (req, res) => {
       amount_received = 0, contractno,
       amount_receivable = 0, invoice_amount = 0,
       startdate, enddate, itemname, latefees,
-      invoice_limit, collectdate, invoicedate, contract_status,
+      invoice_limit = 0, collectdate, invoicedate, contract_status,
     } = req.body;
     let contract = await modelS.zycontract.findOne({
       where: {
@@ -117,40 +117,44 @@ router.all('/create', async (req, res) => {
 
     let overstate = normal;
 
-    startdate = timeToStr(startdate);
+    if(startdate ){
+      startdate = timeToStr(startdate);
 
-    startdate = startdate.substr(0, 6);
-
-    let rentdate = parseInt(contract.rentdate);
-
-    if (rentdate < 10) {
-      rentdate = '0' + rentdate;
+      startdate = startdate.substr(0, 6);
+  
+      let rentdate = parseInt(contract.rentdate);
+  
+      if (rentdate < 10) {
+        rentdate = '0' + rentdate;
+      }
+  
+      let warndate = parseInt(startdate + rentdate.toString());
+  
+      let today = parseInt(getToday());
+  
+      amount_receivable = parseFloat(amount_receivable);
+  
+      amount_received = parseFloat(amount_received);
+  
+      invoice_limit = parseFloat(invoice_limit);
+  
+      invoice_amount = parseFloat(invoice_amount);
+  
+      //假如未逾期，但距离提醒日小于3天 则是即将逾期
+      if (today <= warndate && warndate - today <= 3 &&
+        (amount_receivable > amount_received || invoice_limit > invoice_amount)
+      ) {
+        overstate = warn;
+      }
+  
+      //假如逾期， 则是逾期
+      if (today > warndate &&
+        (amount_receivable > amount_received || invoice_limit > invoice_amount)) {
+          overstate = over;
+      }
     }
 
-    let warndate = parseInt(startdate + rentdate.toString());
-
-    let today = parseInt(getToday());
-
-    amount_receivable = parseFloat(amount_receivable);
-
-    amount_received = parseFloat(amount_received);
-
-    invoice_limit = parseFloat(invoice_limit);
-
-    invoice_amount = parseFloat(invoice_amount);
-
-    //假如未逾期，但距离提醒日小于3天 则是即将逾期
-    if (today <= warndate && warndate - today <= 3 &&
-      (amount_receivable > amount_received || invoice_limit > invoice_amount)
-    ) {
-      overstate = warn;
-    }
-
-    //假如逾期， 则是逾期
-    if (today > warndate &&
-      (amount_receivable > amount_received || invoice_limit > invoice_amount)) {
-        overstate = over;
-    }
+    
 
 
 
