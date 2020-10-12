@@ -549,19 +549,19 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
 
       for (let index = 0; index < totalrows.length; index++) {
         const row = totalrows[index];
-        if(row.amount_receivable >= 0){
+        if(row.amount_receivable !== null){
           totalneedAmount += parseFloat(row.amount_receivable);
         }
         
-        if(row.invoice_limit >= 0){
+        if(row.invoice_limit !== null){
           totalneedInvoice += parseFloat(row.invoice_limit);
         }
         
-        if(row.amount_received >= 0){
+        if(row.amount_received !== null){
           totalrealAmount += parseFloat(row.amount_received);
         }
         
-        if(row.invoice_amount >= 0){
+        if(row.invoice_amount !== null){
           totalrealInvoice += parseFloat(row.invoice_amount);
         }
         
