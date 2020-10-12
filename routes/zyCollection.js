@@ -554,13 +554,13 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
 
       }
 
-      item.totalneedAmount = totalneedAmount;
+      item.totalneedAmount = totalneedAmount.toFixed(2);
 
-      item.totalrealAmount = totalrealAmount;
+      item.totalrealAmount = totalrealAmount.toFixed(2);
 
-      item.totalneedInvoice = totalneedInvoice;
+      item.totalneedInvoice = totalneedInvoice.toFixed(2);
 
-      item.totalrealInvoice = totalrealInvoice;
+      item.totalrealInvoice = totalrealInvoice.toFixed(2);
 
       let oweAmount = (totalneedAmount - totalrealAmount).toFixed(2);
 
