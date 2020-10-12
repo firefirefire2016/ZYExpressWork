@@ -562,9 +562,9 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
 
       item.totalrealInvoice = totalrealInvoice;
 
-      let oweAmount = totalneedAmount - totalrealAmount;
+      let oweAmount = (totalneedAmount - totalrealAmount).toFixed(2);
 
-      let invoiceNeed = totalneedInvoice - totalrealInvoice;
+      let invoiceNeed = (totalneedInvoice - totalrealInvoice).toFixed(2);
 
       //isOwe,needInvoic,nowrealrent,nowrealinvoice,overstate,
       //累计未收，'全部', '无欠费', '其他'
