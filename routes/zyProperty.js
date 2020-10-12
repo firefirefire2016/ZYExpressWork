@@ -106,6 +106,7 @@ router.all('/update', async (req, res) => {
     // delete newTarget.id
 
     if (contractid) {
+      //找到原本属于目标合同的产权
       let resetTemp = await modelS.zypropertyright.findOne({
         where: {
           contractid
@@ -114,8 +115,15 @@ router.all('/update', async (req, res) => {
       if(resetTemp){
         if (resetTemp.id === target.id) {
           //return;
+          if (target) {
+            target = await target.update({
+              ...newTarget
+            })
+  
+          }
         }
         else {
+          //把目标合同的产权的合同id设置为null
           resetTemp = await resetTemp.update({
             contractid: null
           })
