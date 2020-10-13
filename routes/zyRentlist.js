@@ -30,6 +30,12 @@ router.all('/list',async (req,res)=>{
 })
 
 
+function timeToStr(time) {
+  //console.log(time);
+  return parseInt(time.replace(/-/g, ""));
+
+}
+
 router.all('/create',async (req,res)=>{
   try{
     let newTarget = {startdate,enddate,oncerate,onceamount,endamount,contractid
@@ -39,6 +45,14 @@ router.all('/create',async (req,res)=>{
     delete newTarget.id;
 
     newTarget.status = 1;
+
+    if(startdate && startdate.includes('-')){
+      startdate = timeToStr(startdate);
+    }
+
+    if(enddate && enddate.includes('-')){
+      enddate = timeToStr(enddate);
+    }
 
     let target = await modelS.zyrentlist.create({  
         ...newTarget,        

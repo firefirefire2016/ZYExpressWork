@@ -47,9 +47,9 @@ router.all('/create', async (req, res) => {
           {
             simpleaddress,
           },
-          {
-            rightno,
-          }
+          // {
+          //   rightno,
+          // }
         ]
       }
     }
@@ -61,7 +61,7 @@ router.all('/create', async (req, res) => {
     if (obj != null) {
       res.json({
         code: 1,
-        msg: '物业名称或产权编号已存在，不能重复！',
+        msg: '物业名称已存在，不能重复！',
       })
       return;
     }
