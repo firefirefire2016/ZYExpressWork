@@ -88,11 +88,13 @@ router.all('/create', async (req, res) => {
     //   //startdate, enddate, itemname, latefees,
     //   //contractno, collectdate, invoicedate, contract_status,
     // };
-    let target = { ...req.body};
-    let  {
-          startdate, enddate, itemname, latefees,
-          contractno, collectdate, invoicedate, contract_status,
-        } = req.body;
+    let target = { ...req.body };
+    let {
+        amount_received = 0, invoice_limit = 0,
+      amount_receivable = 0, invoice_amount = 0,
+      startdate, enddate, itemname, latefees,
+      contractno, collectdate, invoicedate, contract_status,
+    } = req.body;
     let contract = await modelS.zycontract.findOne({
       where: {
         contractno
@@ -122,44 +124,45 @@ router.all('/create', async (req, res) => {
 
     let overstate = normal;
 
-    if(startdate ){
+    if (startdate) {
       startdate = timeToStr(startdate);
 
       startdate = startdate.substr(0, 6);
-  
+
       let rentdate = parseInt(contract.rentdate);
-  
+
       if (rentdate < 10) {
         rentdate = '0' + rentdate;
       }
-  
+
       let warndate = parseInt(startdate + rentdate.toString());
-  
+
       let today = parseInt(getToday());
-  
+
+      
+
       amount_receivable = parseFloat(amount_receivable);
-  
+
       amount_received = parseFloat(amount_received);
-  
+
+
       invoice_limit = parseFloat(invoice_limit);
-  
+
       invoice_amount = parseFloat(invoice_amount);
-  
+
       //假如未逾期，但距离提醒日小于3天 则是即将逾期
       if (today <= warndate && warndate - today <= 3 &&
         (amount_receivable > amount_received || invoice_limit > invoice_amount)
       ) {
         overstate = warn;
       }
-  
+
       //假如逾期， 则是逾期
       if (today > warndate &&
         (amount_receivable > amount_received || invoice_limit > invoice_amount)) {
-          overstate = over;
+        overstate = over;
       }
     }
-
-    
 
 
 
@@ -249,7 +252,7 @@ router.all('/update', async (req, res) => {
     //假如逾期， 则是逾期
     if (today > warndate &&
       (amount_receivable > amount_received || invoice_limit > invoice_amount)) {
-        overstate = over;
+      overstate = over;
     }
 
     //如果存在则更新
@@ -549,22 +552,22 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
 
       for (let index = 0; index < totalrows.length; index++) {
         const row = totalrows[index];
-        if(row.amount_receivable !== null){
+        if (row.amount_receivable !== null) {
           totalneedAmount += parseFloat(row.amount_receivable);
         }
-        
-        if(row.invoice_limit !== null){
+
+        if (row.invoice_limit !== null) {
           totalneedInvoice += parseFloat(row.invoice_limit);
         }
-        
-        if(row.amount_received !== null){
+
+        if (row.amount_received !== null) {
           totalrealAmount += parseFloat(row.amount_received);
         }
-        
-        if(row.invoice_amount !== null){
+
+        if (row.invoice_amount !== null) {
           totalrealInvoice += parseFloat(row.invoice_amount);
         }
-        
+
 
       }
 

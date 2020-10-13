@@ -93,8 +93,6 @@ router.all('/startUse', async (req, res) => {
         //如果是首期收款
         if (parseInt(row.rentcycle) === 1) {
 
-
-
           if ((parseFloat(row.startdate) - parseFloat(dateNo) <= 30 &&
             parseFloat(row.startdate) > parseFloat(dateNo)) ||
             parseFloat(row.startdate) < parseFloat(dateNo)) {
