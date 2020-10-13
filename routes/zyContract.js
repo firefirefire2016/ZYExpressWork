@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var common = require('../common');
 const modelS = require('../models');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -61,11 +62,6 @@ router.all('/startUse', async (req, res) => {
         msg: '租金标准不能为空，请编辑好再启用'
       })
     }
-
-
-
-
-
 
     //假如存在租金标准，则自动生成2020年1月开始的账单
     if (rentlists.count >= 1) {
@@ -370,6 +366,18 @@ router.all('/create', async (req, res) => {
       })
     }
     else {
+      if(startdate ){
+        startdate = common.timeToStr(startdate);
+      }
+  
+      if(enddate ){
+        enddate = common.timeToStr(enddate);
+      }
+
+      if(signdate ){
+        signdate = common.timeToStr(signdate);
+      }
+
       let contract = await modelS.zycontract.create({
         ...target,
         contract_status: 0,
@@ -408,6 +416,18 @@ router.all('/update', async (req, res) => {
     })
     //如果存在则更新
     if (target) {
+      if(startdate ){
+        startdate = common.timeToStr(startdate);
+      }
+  
+      if(enddate ){
+        enddate = common.timeToStr(enddate);
+      }
+
+      if(signdate ){
+        signdate = common.timeToStr(signdate);
+      }
+
       target = await target.update({
         ...newtarget
       })

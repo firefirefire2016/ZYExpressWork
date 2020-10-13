@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var common = require('../common');
 const modelS = require('../models');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -30,11 +31,7 @@ router.all('/list',async (req,res)=>{
 })
 
 
-function timeToStr(time) {
-  //console.log(time);
-  return parseInt(time.replace(/-/g, ""));
 
-}
 
 router.all('/create',async (req,res)=>{
   try{
@@ -46,12 +43,12 @@ router.all('/create',async (req,res)=>{
 
     newTarget.status = 1;
 
-    if(startdate && startdate.includes('-')){
-      startdate = timeToStr(startdate);
+    if(startdate ){
+      startdate = common.timeToStr(startdate);
     }
 
-    if(enddate && enddate.includes('-')){
-      enddate = timeToStr(enddate);
+    if(enddate ){
+      enddate = common.timeToStr(enddate);
     }
 
     let target = await modelS.zyrentlist.create({  

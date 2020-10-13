@@ -23,6 +23,8 @@ const mysql = require("mysql");
 const modelS = require('./models');
 const { json } = require('sequelize');
 
+var common = require('./common');
+
 //const testuser = require('./models/testuser');
 
 var app = express();
@@ -132,7 +134,7 @@ const addRentByContract = async () => {
 
         var rentRows = rentlists.rows;
 
-        let today = parseInt(getToday());//今天为1号
+        let today = parseInt(common.getToday());//今天为1号
 
 
         for (let index = 0; index < rentRows.length; index++) {
@@ -143,7 +145,7 @@ const addRentByContract = async () => {
             parseInt(row.startdate) - today <= 30
           ) {
 
-            let dateNo = getToday();
+            let dateNo = common.getToday();
 
             if (parseFloat(row.enddate)) {
               let newCollection = {
@@ -317,7 +319,7 @@ const updateRent = async () => {
         rentdate = '0' + rentdate;
       }
       let warndate = parseInt(startdate + rentdate.toString());
-      let today = parseInt(getToday());
+      let today = parseInt(common.getToday());
 
       //假如未逾期，但距离提醒日小于3天
       if (today <= warndate && warndate - today <= 3 && row.overstate === '3' &&
@@ -421,7 +423,7 @@ const updateContract = async () => {
       //现在开始判断他的合同状态
       //先获取它的到期日期
       let enddate = parseInt(row.enddate);
-      let today = parseInt(getToday());
+      let today = parseInt(common.getToday());
 
       let warnStatus = 2;
 
@@ -528,28 +530,7 @@ const updateContract = async () => {
 
 updateContract();
 
-function getToday() {
-  var today = new Date();
 
-  var year = today.getFullYear();
-
-  var month = parseInt(today.getMonth()) + 1;
-
-  var day = today.getDate();
-
-  if (month < 10) {
-    month = '0' + month;
-  }
-
-  if (day < 10) {
-    day = '0' + day;
-  }
-
-  let dateNo = year.toString() + month.toString() + day.toString();
-
-  return dateNo;
-
-}
 
 
 function scheduleRecurrenceRule() {

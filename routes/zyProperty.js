@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const { INTEGER } = require('sequelize');
 const { Op } = require("sequelize");
+var common = require('../common');
 
 router.use(cors());
 router.use(bodyParser.urlencoded({ extended: true }));
