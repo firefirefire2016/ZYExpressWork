@@ -7,6 +7,7 @@ const { INTEGER } = require('sequelize');
 const zycontract = require('../models/zycontract');
 var Sequelize = require('sequelize');
 const { Op } = require("sequelize");
+var common = require('../common');
 
 router.use(cors());
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -30,55 +31,6 @@ router.all('/list', async (req, res) => {
   })
   console.log(list);
 })
-
-
-function getToday() {
-  var today = new Date();
-
-  var year = today.getFullYear();
-
-  var month = parseInt(today.getMonth()) + 1;
-
-  var day = today.getDate();
-
-  if (month < 10) {
-    month = '0' + month;
-  }
-
-  if (day < 10) {
-    day = '0' + day;
-  }
-
-  let dateNo = year.toString() + month.toString() + day.toString();
-
-  return dateNo;
-
-}
-
-function strToTime(str) {
-  console.log(str);
-
-  str = str.toString();
-
-  if (str.includes('-')) {
-    return str;
-  }
-
-  var year = str.substring(0, 4);
-
-  var month = str.substring(4, 6);
-
-  var day = str.substring(6, 8);
-
-  return year + '-' + month + '-' + day;
-}
-
-
-function timeToStr(time) {
-  console.log(time);
-  return time.replace(/-/g, "");
-
-}
 
 router.all('/create', async (req, res) => {
   try {
@@ -105,7 +57,7 @@ router.all('/create', async (req, res) => {
 
     let getbillno = await modelS.zycollection.max('billno');
 
-    let dateNo = getToday() + '001';
+    let dateNo = common.getToday() + '001';
 
     if (parseInt(getbillno) < parseInt(dateNo)) {
       getbillno = parseInt(dateNo);
@@ -125,7 +77,7 @@ router.all('/create', async (req, res) => {
     let overstate = normal;
 
     if (startdate) {
-      startdate = timeToStr(startdate);
+      startdate = common.timeToStr(startdate);
 
       startdate = startdate.substr(0, 6);
 
@@ -137,7 +89,7 @@ router.all('/create', async (req, res) => {
 
       let warndate = parseInt(startdate + rentdate.toString());
 
-      let today = parseInt(getToday());
+      let today = parseInt(common.getToday());
 
       
 
@@ -220,7 +172,7 @@ router.all('/update', async (req, res) => {
 
     let overstate = normal;
 
-    startdate = timeToStr(startdate);
+    startdate = common.timeToStr(startdate);
 
     startdate = startdate.substr(0, 6);
 
@@ -232,7 +184,7 @@ router.all('/update', async (req, res) => {
 
     let warndate = parseInt(startdate + rentdate.toString());
 
-    let today = parseInt(getToday());
+    let today = parseInt(common.getToday());
 
     amount_receivable = parseFloat(amount_receivable);
 
@@ -536,8 +488,8 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
 
       let totalrents = await modelS.zycollection.findAndCountAll({
         where,
-        offset,
-        limit
+        // offset,
+        // limit
       })
 
       let totalrows = totalrents.rows;

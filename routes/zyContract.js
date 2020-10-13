@@ -34,6 +34,38 @@ router.all('/list', async (req, res) => {
   console.log(list);
 })
 
+
+//生成产权副本给合同
+const giveContractRight = async (contractid, rightno) => {
+
+  try {
+    let _rightno;
+    //暂定产权状态999的为副本
+    let copystatus = 999;
+    if (rightno == null) {
+      return '产权信息为空！';
+    }
+    else {
+      _rightno = new Object(rightno);
+
+      //首先去掉id
+      delete _rightno.id;
+
+      //设置副本的合同id
+      _rightno.contractid = contractid;
+
+      let target = await modelS.zypropertyright.create({
+        ..._rightno,
+        property_status: copystatus
+      })
+
+      return target;
+    }
+  } catch (error) {
+    return error.message;
+  }
+}
+
 //启用合同
 router.all('/startUse', async (req, res) => {
   try {
@@ -216,7 +248,7 @@ router.all('/startUse', async (req, res) => {
 
               let newCollection = {
                 contractid: id,
-              //  contract_status: 1,
+                //  contract_status: 1,
                 status: 1,
                 startdate,
                 enddate,
@@ -364,15 +396,15 @@ router.all('/create', async (req, res) => {
       })
     }
     else {
-      if(startdate ){
+      if (startdate) {
         startdate = common.timeToStr(startdate);
       }
-  
-      if(enddate ){
+
+      if (enddate) {
         enddate = common.timeToStr(enddate);
       }
 
-      if(signdate ){
+      if (signdate) {
         signdate = common.timeToStr(signdate);
       }
 
@@ -414,15 +446,15 @@ router.all('/update', async (req, res) => {
     })
     //如果存在则更新
     if (target) {
-      if(startdate ){
+      if (startdate) {
         startdate = common.timeToStr(startdate);
       }
-  
-      if(enddate ){
+
+      if (enddate) {
         enddate = common.timeToStr(enddate);
       }
 
-      if(signdate ){
+      if (signdate) {
         signdate = common.timeToStr(signdate);
       }
 

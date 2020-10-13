@@ -251,11 +251,22 @@ router.all('/list/:page/:limit', async (req, res) => {
     }
 
 
-    //如果产权状态为不要删除的
+    //如果产权状态为不要删除的,也不要副本
     if (property_status === -2) {
+    //  [Op.and]: [{ a: 5 }, { b: 6 }], 
       where.property_status = {
-        [Op.ne]: -1
+        [Op.and]: [
+          {
+            [Op.ne]: -1
+          },
+          {
+            [Op.ne]: 999
+          }
+        ]
       }
+      // where.property_status = {
+      //   [Op.ne]: -1
+      // }
     } else {
       where.property_status = property_status;
     }
