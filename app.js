@@ -429,7 +429,7 @@ const updateContract = async () => {
 
       //假如未过期，但在距离结束日期小于3个月
       if (today < enddate && enddate - today <= 300 && row.contract_status !== -1 
-       //&&  row.contract_status !== warnStatus
+       &&  row.contract_status !== warnStatus
         ) {
         //更新为即将到期
         
@@ -477,7 +477,7 @@ const updateContract = async () => {
 
       //假如日期已超过结束日期
       if (today >= enddate && row.contract_status !== -1 
-      //  &&  row.contract_status !== overStatus
+        &&  row.contract_status !== overStatus
         ) {
         //更新为已到期
         
