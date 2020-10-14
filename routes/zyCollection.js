@@ -571,6 +571,10 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
         item.isWarn = true;
       }
 
+      item.startdate = common.strToTime(item.startdate);
+
+      item.enddate = common.strToTime(item.enddate);
+
       targetRentlist.push(item);
 
     }
@@ -770,9 +774,18 @@ router.all('/list/:page/:limit', async (req, res) => {
     })
 
     for (let index = 0; index < rows.length; index++) {
-      rows[index].dataValues.simpleaddress = rows[index].dataValues.zycontract.zypropertyright.simpleaddress;
-      if (rows[index].dataValues.overstate === '1' || rows[index].dataValues.overstate === '2') {
-        rows[index].dataValues.isWarn = true;
+      const row = rows[index].dataValues;
+      if(row.startdate){
+        row.startdate = common.strToTime(row.startdate);
+      }
+      if(row.enddate){
+        row.enddate = common.strToTime(row.enddate);
+      }
+      
+      row.simpleaddress = row.zycontract.zypropertyright.simpleaddress;
+      
+      if (row.overstate === '1' || row.overstate === '2') {
+        row.isWarn = true;
       }
     }
 

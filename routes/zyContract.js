@@ -121,7 +121,13 @@ router.all('/startUse', async (req, res) => {
 
 
       for (let index = 0; index < rows.length; index++) {
-        const row = rows[index];
+        let row = rows[index];
+
+        //先转换日期格式
+        row.startdate = common.timeToStr(row.startdate);
+
+        row.enddate = common.timeToStr(row.enddate);
+
         //如果是首期收款
         if (parseInt(row.rentcycle) === 1) {
 
