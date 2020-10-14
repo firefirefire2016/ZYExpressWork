@@ -576,6 +576,9 @@ router.all('/list/:page/:limit', async (req, res) => {
         [Op.substring]: simpleaddress
       }
     }
+    else{
+      where2 = null;
+    }
 
     if (!contract_status && contract_status !== 0) {
       contract_status = -2;
