@@ -641,12 +641,17 @@ router.all('/list/:page/:limit', async (req, res) => {
       where.contract_status = contract_status;
     }
 
-    if (limit == -1) {
+    if (limit == '-1') {
       limit = 10;
       offset = (page - 1) * limit;
-    } else {
+    } else if(limit !== '0'){
       limit = parseInt(limit);
       offset = (page - 1) * limit;
+    }
+
+    if(page=== '0' || limit === '0'){
+      offset = null;
+      limit = null
     }
 
     let { count, rows } = await modelS.zycontract.findAndCountAll({

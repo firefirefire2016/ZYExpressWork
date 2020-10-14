@@ -42,7 +42,7 @@ router.all('/create', async (req, res) => {
     // };
     let target = { ...req.body };
     let {
-        amount_received = 0, invoice_limit = 0,
+      amount_received = 0, invoice_limit = 0,
       amount_receivable = 0, invoice_amount = 0,
       startdate, enddate, itemname, latefees,
       contractno, collectdate, invoicedate, contract_status,
@@ -91,7 +91,7 @@ router.all('/create', async (req, res) => {
 
       let today = parseInt(common.getToday());
 
-      
+
 
       amount_receivable = parseFloat(amount_receivable);
 
@@ -146,10 +146,11 @@ router.all('/create', async (req, res) => {
 router.all('/update', async (req, res) => {
   try {
     let newTarget = {
-      amount_received, id, contractno,
-      amount_receivable, invoice_amount,
+      amount_received = 0, id, contractno,
+      amount_receivable = 0, invoice_amount = 0,
       startdate, enddate, itemname, latefees,
-      invoice_limit, billno, collectdate, invoicedate
+      invoice_limit = 0, billno, collectdate, invoicedate,
+      status,
     } = req.body;
     let contract = await modelS.zycontract.findOne({
       where: {
@@ -163,7 +164,6 @@ router.all('/update', async (req, res) => {
       }
     })
 
-
     let normal = 3;
 
     let warn = 1;
@@ -172,40 +172,45 @@ router.all('/update', async (req, res) => {
 
     let overstate = normal;
 
-    startdate = common.timeToStr(startdate);
+    if (startdate && contract.rentdate) {
 
-    startdate = startdate.substr(0, 6);
 
-    let rentdate = parseInt(contract.rentdate);
+      startdate = common.timeToStr(startdate);
 
-    if (rentdate < 10) {
-      rentdate = '0' + rentdate;
+      startdate = startdate.substr(0, 6);
+
+      let rentdate = parseInt(contract.rentdate);
+
+      if (rentdate < 10) {
+        rentdate = '0' + rentdate;
+      }
+
+      let warndate = parseInt(startdate + rentdate.toString());
+
+      let today = parseInt(common.getToday());
+
+      amount_receivable = parseFloat(amount_receivable);
+
+      amount_received = parseFloat(amount_received);
+
+      invoice_limit = parseFloat(invoice_limit);
+
+      invoice_amount = parseFloat(invoice_amount);
+
+      //假如未逾期，但距离提醒日小于3天 则是即将逾期
+      if (today <= warndate && warndate - today <= 3 &&
+        (amount_receivable > amount_received || invoice_limit > invoice_amount)
+      ) {
+        overstate = warn;
+      }
+
+      //假如逾期， 则是逾期
+      if (today > warndate &&
+        (amount_receivable > amount_received || invoice_limit > invoice_amount)) {
+        overstate = over;
+      }
     }
 
-    let warndate = parseInt(startdate + rentdate.toString());
-
-    let today = parseInt(common.getToday());
-
-    amount_receivable = parseFloat(amount_receivable);
-
-    amount_received = parseFloat(amount_received);
-
-    invoice_limit = parseFloat(invoice_limit);
-
-    invoice_amount = parseFloat(invoice_amount);
-
-    //假如未逾期，但距离提醒日小于3天 则是即将逾期
-    if (today <= warndate && warndate - today <= 3 &&
-      (amount_receivable > amount_received || invoice_limit > invoice_amount)
-    ) {
-      overstate = warn;
-    }
-
-    //假如逾期， 则是逾期
-    if (today > warndate &&
-      (amount_receivable > amount_received || invoice_limit > invoice_amount)) {
-      overstate = over;
-    }
 
     //如果存在则更新
     if (target) {
@@ -775,15 +780,15 @@ router.all('/list/:page/:limit', async (req, res) => {
 
     for (let index = 0; index < rows.length; index++) {
       const row = rows[index].dataValues;
-      if(row.startdate){
+      if (row.startdate) {
         row.startdate = common.strToTime(row.startdate);
       }
-      if(row.enddate){
+      if (row.enddate) {
         row.enddate = common.strToTime(row.enddate);
       }
-      
+
       row.simpleaddress = row.zycontract.zypropertyright.simpleaddress;
-      
+
       if (row.overstate === '1' || row.overstate === '2') {
         row.isWarn = true;
       }
