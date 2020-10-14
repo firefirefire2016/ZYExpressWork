@@ -461,6 +461,30 @@ router.all('/update', async (req, res) => {
       target = await target.update({
         ...newtarget
       })
+
+      //这时候需要判断是否是退租和停用导致已失效，如果是，则生成产权副本
+      //原产权设置为空置
+      if (contract_status === 4) {
+        let right = await modelS.zypropertyright.findOne({
+          where: {
+            contractid: newtarget.id
+          }
+        })
+
+        let rightno = right.dataValues;
+
+        if (rightno.property_status != 999) {
+          if (right) {
+            right = await right.update({
+              property_status: 1,
+              contractid: null,
+            })
+          }
+
+          giveContractRight(newtarget.id, rightno);
+        }
+      }
+
       res.json({
         code: 0,
         msg: '更新记录成功'

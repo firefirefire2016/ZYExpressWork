@@ -428,8 +428,9 @@ const updateContract = async () => {
       let warnStatus = 2;
 
       //假如未过期，但在距离结束日期小于3个月
-      if (today < enddate && enddate - today <= 300 && row.contract_status !== -1 &&
-        row.contract_status !== warnStatus) {
+      if (today < enddate && enddate - today <= 300 && row.contract_status !== -1 
+       //&&  row.contract_status !== warnStatus
+        ) {
         //更新为即将到期
         
         let target = await modelS.zycontract.findOne({
@@ -451,7 +452,7 @@ const updateContract = async () => {
 
         where3.contractid = row.id;
 
-        where3.status = {
+        where3.property_status = {
           [Op.ne]: -1
         }
 
@@ -465,7 +466,7 @@ const updateContract = async () => {
             msg: '产权为空，产权变更失败'
           })
         }
-        else if(property.property_status !== -1 && property.property_status !== warnStatus){
+        else if(property.property_status !== warnStatus){
           property = await property.update({
             property_status: warnStatus,
           })
@@ -475,8 +476,9 @@ const updateContract = async () => {
       let overStatus = 3;
 
       //假如日期已超过结束日期
-      if (today >= enddate && row.contract_status !== -1 &&
-        row.contract_status !== overStatus) {
+      if (today >= enddate && row.contract_status !== -1 
+      //  &&  row.contract_status !== overStatus
+        ) {
         //更新为已到期
         
         let target = await modelS.zycontract.findOne({
@@ -498,7 +500,7 @@ const updateContract = async () => {
 
         where3.contractid = row.id;
 
-        where3.status = {
+        where3.property_status = {
           [Op.ne]: -1
         }
 
@@ -512,9 +514,35 @@ const updateContract = async () => {
             msg: '产权为空，产权变更失败'
           })
         }
-        else if(property.property_status !== -1 && property.property_status !== overStatus){
+        else if(property.property_status !== overStatus){
           property = await property.update({
             property_status: overStatus,
+          })
+        }
+      }
+
+      if(row.contract_status === 1 && enddate - today > 300){
+        let where3 = {};
+
+        where3.contractid = row.id;
+
+        where3.property_status = {
+          [Op.ne]: -1
+        }
+
+        let property = await modelS.zypropertyright.findOne({
+          where: where3
+        })
+
+        if (property == null) {
+          res.json({
+            code: 1,
+            msg: '产权为空，产权变更失败'
+          })
+        }
+        else if(property.property_status !== 0){
+          property = await property.update({
+            property_status: 0,//更新为已租
           })
         }
       }

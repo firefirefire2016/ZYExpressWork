@@ -93,8 +93,8 @@ router.all('/create', async (req, res) => {
 router.all('/update', async (req, res) => {
   try {
     let newTarget = {
-      simpleaddress, address, owner, rightno,feature, righttype, community,
-       commonstate, unitno, usereason, rightfeature,
+      simpleaddress, address, owner, rightno, feature, righttype, community,
+      commonstate, unitno, usereason, rightfeature,
       area, insidearea, limitdate, otherstatus, remarks, id, contractid
     } = req.body;
 
@@ -106,6 +106,9 @@ router.all('/update', async (req, res) => {
 
     // delete newTarget.id
 
+
+
+    //
     if (contractid) {
       //找到原本属于目标合同的产权
       let resetTemp = await modelS.zypropertyright.findOne({
@@ -113,41 +116,67 @@ router.all('/update', async (req, res) => {
           contractid
         }
       })
-      if(resetTemp){
+      //目标合同有相应的产权
+      if (resetTemp) {
+        //目标合同的产权id和现在要更新的产权id相等，则直接更新
         if (resetTemp.id === target.id) {
           //return;
           if (target) {
             target = await target.update({
               ...newTarget
             })
-  
+
           }
         }
-        else {
+        else {//目标合同的产权id和现在要更新的产权id不相等
           //把目标合同的产权的合同id设置为null
           resetTemp = await resetTemp.update({
             contractid: null
           })
-          //如果存在则更新
+          //把要设置的产权设置为目标合同的产权
           if (target) {
             target = await target.update({
               ...newTarget
             })
-  
+
           }
         }
       }
-      else{
-        //如果存在则更新
-        if (target) {
+      else {
+        //目标合同没有产权直接更改即可(一般是普通创建合同时触发)
+        if (target && target.contractid === null) {
           target = await target.update({
             ...newTarget
           })
 
         }
-      }
-      
 
+        //假如产权更改前不为空置（即不能创建时选择），且目标合同id与原合同id不一致，说明要续租
+        if (target.property_status !== 1 && target.contractid !== contractid) {
+          let rightno =  target.dataValues;
+
+          let id = target.contractid;         
+
+          //把自己更改为目标合同的产权
+          target = await target.update({
+            ...newTarget
+          })
+
+          //创建一个产权副本给原合同id
+          giveContractRight(id,rightno);
+
+        }
+      }
+
+    }
+    else {
+      //产权没有合同id，直接更新
+      if (target) {
+        target = await target.update({
+          ...newTarget
+        })
+
+      }
     }
 
     console.log(target);
@@ -165,6 +194,37 @@ router.all('/update', async (req, res) => {
     next(error);
   }
 })
+
+//生成产权副本给合同
+const giveContractRight = async (contractid, rightno) => {
+
+  try {
+    let _rightno;
+    //暂定产权状态999的为副本
+    let copystatus = 999;
+    if (rightno == null) {
+      return '产权信息为空！';
+    }
+    else {
+      _rightno = new Object(rightno);
+
+      //首先去掉id
+      delete _rightno.id;
+
+      //设置副本的合同id
+      _rightno.contractid = contractid;
+
+      let target = await modelS.zypropertyright.create({
+        ..._rightno,
+        property_status: copystatus
+      })
+
+      return target;
+    }
+  } catch (error) {
+    return error.message;
+  }
+}
 
 
 
@@ -253,7 +313,7 @@ router.all('/list/:page/:limit', async (req, res) => {
 
     //如果产权状态为不要删除的,也不要副本
     if (property_status === -2) {
-    //  [Op.and]: [{ a: 5 }, { b: 6 }], 
+      //  [Op.and]: [{ a: 5 }, { b: 6 }], 
       where.property_status = {
         [Op.and]: [
           {
