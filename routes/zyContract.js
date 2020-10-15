@@ -647,7 +647,7 @@ router.all('/list/:page/:limit', async (req, res) => {
       offset = (page - 1) * limit;
     } else if(limit !== '0'){
       limit = parseInt(limit);
-      offset = (page - 1) * limit;
+      offset = (parseInt(page)  - 1) * limit;
     }
 
     if(page=== '0' || limit === '0'){
@@ -674,9 +674,15 @@ router.all('/list/:page/:limit', async (req, res) => {
       ]
     })
     rows.forEach(row => {
-      row.startdate = strToTime(row.dataValues.startdate) ;
-      row.enddate = strToTime(row.dataValues.enddate);
-      row.signdate = strToTime(row.dataValues.signdate);
+      if(row.startdate){
+        row.startdate = strToTime(row.dataValues.startdate) ;
+      }
+      if(row.enddate){
+        row.enddate= strToTime(row.dataValues.enddate);
+      }
+      if(row.signdate){
+        row.signdate = strToTime(row.dataValues.signdate);
+      }      
       // row['area'] = row.zypropertyrights[0].area; 
       // row['insidearea'] = row.zypropertyrights[0].area;
       // row['simpleaddress'] = row.zypropertyrights[0].simpleaddress;

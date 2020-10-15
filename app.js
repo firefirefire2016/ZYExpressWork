@@ -327,9 +327,21 @@ const updateRent = async () => {
         let warndate = parseInt(startdate + rentdate.toString());
         let today = parseInt(common.getToday());
 
+        if(row.id === 600){
+          console.log(row);
+        }
+
+        let amount_receivable = parseFloat(row.amount_receivable );
+
+        let amount_received = parseFloat(row.amount_received );
+
+        let invoice_limit = parseFloat(row.invoice_limit );
+
+        let invoice_amount = parseFloat(row.invoice_amount );
+
         //假如未逾期，但距离提醒日小于3天
         if (today <= warndate && warndate - today <= 3 && row.overstate === '3' &&
-          (row.amount_receivable > row.amount_received || row.invoice_limit > row.invoice_amount)
+          (amount_receivable > amount_received || invoice_limit > invoice_amount)
         ) {
           //更新为即将逾期
           let warnState = 1;
@@ -351,7 +363,7 @@ const updateRent = async () => {
 
         //假如日期已超过提醒日期
         if (today > warndate && (row.overstate === '1' || row.overstate === '3') &&
-          (row.amount_receivable > row.amount_received || row.invoice_limit > row.invoice_amount)) {
+          (amount_receivable > amount_received || invoice_limit > invoice_amount)) {
           //更新为已逾期
           let overState = 2;
           let target = await modelS.zycollection.findOne({
@@ -374,7 +386,7 @@ const updateRent = async () => {
 
 
 
-      if (row.overstate !== '3' && row.amount_receivable <= row.amount_received && row.invoice_limit <= row.invoice_amount) {
+      if (row.overstate !== '3' && amount_receivable <= amount_received && invoice_limit <= invoice_amount) {
         //更新为正常
         let normal = 3;
         let target = await modelS.zycollection.findOne({

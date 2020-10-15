@@ -467,19 +467,19 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
       item.rentdate = row.rentdate;
 
       //判断该账单是否符合条件
-      if (parseInt(nowrealrent) === 1 && item.amount_received < item.amount_receivable) {
+      if (parseInt(nowrealrent) === 1 && (parseFloat(item.amount_received) < parseFloat(item.amount_receivable)) ) {
         continue;
       }
 
-      if (parseInt(nowrealrent) === 2 && item.amount_received >= item.amount_receivable) {
+      if (parseInt(nowrealrent) === 2 && (parseFloat(item.amount_received) >= parseFloat(item.amount_receivable)) ) {
         continue;
       }
 
-      if (parseInt(nowrealinvoice) === 1 && item.invoice_amount < item.invoice_limit) {
+      if (parseInt(nowrealinvoice) === 1 && (parseFloat(item.invoice_amount) < parseFloat(item.invoice_limit)) ) {
         continue;
       }
 
-      if (parseInt(nowrealinvoice) === 2 && item.invoice_amount >= item.invoice_limit) {
+      if (parseInt(nowrealinvoice) === 2 && (parseFloat(item.invoice_amount) >= parseFloat(item.invoice_limit)) ) {
         continue;
       }
 
@@ -576,9 +576,15 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
         item.isWarn = true;
       }
 
-      item.startdate = common.strToTime(item.startdate);
+      if(item.startdate){
+        item.startdate = common.strToTime(item.startdate);
+      }
 
-      item.enddate = common.strToTime(item.enddate);
+      if(item.enddate){
+        item.enddate = common.strToTime(item.enddate);
+      }
+
+      
 
       targetRentlist.push(item);
 
