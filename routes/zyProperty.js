@@ -143,8 +143,13 @@ router.all('/update', async (req, res) => {
         }
       }
       else {
+        
+        let rightno = target.dataValues;
+
+        let id = target.contractid;
+
         //目标合同没有产权直接更改即可(一般是普通创建合同时触发)
-        if (target && target.contractid === null) {
+        if (target) {
           target = await target.update({
             ...newTarget
           })
@@ -153,17 +158,14 @@ router.all('/update', async (req, res) => {
 
         //假如产权更改前不为空置（即不能创建时选择），且目标合同id与原合同id不一致，说明要续租
         if (target.property_status !== 1 && target.contractid !== contractid) {
-          let rightno =  target.dataValues;
-
-          let id = target.contractid;         
 
           //把自己更改为目标合同的产权
-          target = await target.update({
-            ...newTarget
-          })
+          // target = await target.update({
+          //   ...newTarget
+          // })
 
           //创建一个产权副本给原合同id
-          giveContractRight(id,rightno);
+          giveContractRight(id, rightno);
 
         }
       }

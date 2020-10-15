@@ -7,6 +7,7 @@ const cors = require('cors');
 const { INTEGER } = require('sequelize');
 const { sequelize } = require('../models');
 const { Op } = require("sequelize");
+const { strToTime } = require('../common');
 
 router.use(cors());
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -672,12 +673,15 @@ router.all('/list/:page/:limit', async (req, res) => {
         ['createdAt', 'DESC']
       ]
     })
-    // rows.forEach(row => {
-    //   row['area'] = row.zypropertyrights[0].area; 
-    //   row['insidearea'] = row.zypropertyrights[0].area;
-    //   row['simpleaddress'] = row.zypropertyrights[0].simpleaddress;
-    // });
-    console.log(rows);
+    rows.forEach(row => {
+      row.startdate = strToTime(row.dataValues.startdate) ;
+      row.enddate = strToTime(row.dataValues.enddate);
+      row.signdate = strToTime(row.dataValues.signdate);
+      // row['area'] = row.zypropertyrights[0].area; 
+      // row['insidearea'] = row.zypropertyrights[0].area;
+      // row['simpleaddress'] = row.zypropertyrights[0].simpleaddress;
+    });
+    //console.log(rows);
     res.json({
       code: 0,
       rows,

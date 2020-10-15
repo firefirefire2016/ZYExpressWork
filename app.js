@@ -403,6 +403,44 @@ const updateRent = async () => {
 
 updateRent();
 
+function keep1(){
+  // let updatecount = 0;
+
+  //   for (let index = 0; index < rows.length; index++) {
+  //     const row = rows[index];
+  //     if(row.startdate){
+  //       row.startdate = common.timeToStr(row.startdate);
+  //     }
+
+  //     if(row.enddate){
+  //       row.enddate = common.timeToStr(row.enddate);
+  //     }
+
+  //     if(row.signdate){
+  //       row.signdate = common.timeToStr(row.signdate);
+  //     }
+
+  //     let obj = await modelS.zycontract.findOne({
+  //       where: {
+  //         id: row.id
+  //       }
+  //     })
+
+  //     if (obj) {
+  //       obj = await obj.update({
+  //         startdate:row.startdate,
+  //         enddate:row.enddate,
+  //         signdate:row.signdate,
+  //       })
+  //       // target = await target.update({
+  //       //         contract_status: warnStatus//合同状态2为即将到期
+  //       //       })
+  //       console.log(obj);
+  //       updatecount++;
+  //     }
+  //   }
+}
+
 const updateContract = async () => {
 
   try {
@@ -411,7 +449,7 @@ const updateContract = async () => {
     let where2 = {};
 
     where.contract_status = {
-      [Op.or]: [1, 2, 3]//找到1已生效2即将到期3已到期的合同
+      [Op.or]: [ 1, 2, 3]//找到1已生效2即将到期3已到期的合同
     }
 
     let { count, rows } = await modelS.zycontract.findAndCountAll({
@@ -426,9 +464,10 @@ const updateContract = async () => {
 
     console.log('总共有' + count + '个：');
 
+    
 
+    rows.forEach(async row => {      
 
-    rows.forEach(async row => {
       //console.log(JSON.stringify(row));
       //现在开始判断他的合同状态
       //先获取它的到期日期
@@ -559,6 +598,9 @@ const updateContract = async () => {
 
 
     });
+
+    //console.log(' updatecount = ' + updatecount);
+
   } catch (error) {
     console.log(error.message);
   }
