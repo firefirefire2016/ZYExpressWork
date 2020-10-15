@@ -106,8 +106,6 @@ router.all('/update', async (req, res) => {
 
     // delete newTarget.id
 
-
-
     //
     if (contractid) {
       //找到原本属于目标合同的产权

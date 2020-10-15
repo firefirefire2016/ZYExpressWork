@@ -747,16 +747,21 @@ router.all('/list/:page/:limit', async (req, res) => {
 
 
 
-    if (limit == -1) {
-      const amount = await modelS.zycollection.count({
-        where
-      });
-      limit = amount;
-      limit = parseInt(limit);
+    if (limit == '-1') {
+      // const amount = await modelS.zycollection.count({
+      //   where
+      // });
+      // limit = amount;
+      limit = 10;
       offset = (page - 1) * limit;
-    } else {
+    } else if(limit !== '0'){
       limit = parseInt(limit);
-      offset = (page - 1) * limit;
+      offset = (parseInt(page)  - 1) * limit;
+    }
+
+    if(page=== '0' || limit === '0'){
+      offset = null;
+      limit = null
     }
 
     let { count, rows } = await modelS.zycollection.findAndCountAll({
