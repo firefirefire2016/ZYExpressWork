@@ -805,7 +805,7 @@ router.all('/list/:page/:limit', async (req, res) => {
       }
     }
 
-    console.log(rows);
+    //console.log(rows);
     res.json({
       code: 0,
       rows,

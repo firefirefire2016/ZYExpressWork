@@ -316,6 +316,14 @@ const updateRent = async () => {
 
       let rentdate = row.zycontract.rentdate;
 
+      let amount_receivable = parseFloat(row.amount_receivable);
+
+      let amount_received = parseFloat(row.amount_received);
+
+      let invoice_limit = parseFloat(row.invoice_limit);
+
+      let invoice_amount = parseFloat(row.invoice_amount);
+
       if (startdate && rentdate) {
         startdate = startdate.substr(0, 6);
 
@@ -327,17 +335,11 @@ const updateRent = async () => {
         let warndate = parseInt(startdate + rentdate.toString());
         let today = parseInt(common.getToday());
 
-        if(row.id === 600){
+        if (row.id === 600) {
           console.log(row);
         }
 
-        let amount_receivable = parseFloat(row.amount_receivable );
 
-        let amount_received = parseFloat(row.amount_received );
-
-        let invoice_limit = parseFloat(row.invoice_limit );
-
-        let invoice_amount = parseFloat(row.invoice_amount );
 
         //假如未逾期，但距离提醒日小于3天
         if (today <= warndate && warndate - today <= 3 && row.overstate === '3' &&
@@ -383,9 +385,6 @@ const updateRent = async () => {
         }
       }
 
-
-
-
       if (row.overstate !== '3' && amount_receivable <= amount_received && invoice_limit <= invoice_amount) {
         //更新为正常
         let normal = 3;
@@ -415,7 +414,7 @@ const updateRent = async () => {
 
 updateRent();
 
-function keep1(){
+function keep1() {
   // let updatecount = 0;
 
   //   for (let index = 0; index < rows.length; index++) {
@@ -461,7 +460,7 @@ const updateContract = async () => {
     let where2 = {};
 
     where.contract_status = {
-      [Op.or]: [ 1, 2, 3]//找到1已生效2即将到期3已到期的合同
+      [Op.or]: [1, 2, 3]//找到1已生效2即将到期3已到期的合同
     }
 
     let { count, rows } = await modelS.zycontract.findAndCountAll({
@@ -476,9 +475,9 @@ const updateContract = async () => {
 
     console.log('总共有' + count + '个：');
 
-    
 
-    rows.forEach(async row => {      
+
+    rows.forEach(async row => {
 
       //console.log(JSON.stringify(row));
       //现在开始判断他的合同状态
