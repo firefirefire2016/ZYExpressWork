@@ -8,6 +8,15 @@
 	`npx sequelize model:generate --name Todo 
 --attributes name:string,deadline:date,content:string `
 
+//租户信息
+yarn sequelize model:generate --name zycustomer --attributes customer_name:string,customer_type:string,
+contact:string,contact_tel:string,contact_idno:string,contact_address:string,status:integer,email:string,
+qq:string,remarks:string
+
+//汇款账户信息
+yarn sequelize model:generate --name zyremitaccount --attributes account_name:string,account_bank:string,
+account_number:string,remarks:string
+
 //收款表
 yarn sequelize model:generate --name zycollection --attributes month:string,amount_received:decimal,amount_receivable:decimal,invoice_amount:decimal,contractid:integer
 

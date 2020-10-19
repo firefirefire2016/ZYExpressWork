@@ -24,6 +24,7 @@ const modelS = require('./models');
 const { json } = require('sequelize');
 
 var common = require('./common');
+const { timeToStr } = require('./common');
 
 //const testuser = require('./models/testuser');
 
@@ -412,7 +413,7 @@ const updateRent = async () => {
 
 }
 
-updateRent();
+//updateRent();
 
 function keep1() {
   // let updatecount = 0;
@@ -619,7 +620,76 @@ const updateContract = async () => {
 
 }
 
-updateContract();
+const transContract = async () => {
+
+  try {
+    let where = {};
+
+    let where2 = {};
+
+    where.contract_status = {
+      //[Op.or]: [0,1, 2, 3]//找到1已生效2即将到期3已到期的合同
+      [Op.ne]:-1,
+    }
+
+    let { count, rows } = await modelS.zycontract.findAndCountAll({
+      where,
+    })
+
+    console.log('总共有' + count + '个：');
+
+
+
+    rows.forEach(async row => {
+        if(row.id === 196){
+          console.log('');
+        }
+        let _row = {};
+        let target = await modelS.zycontract.findOne({
+          where: {
+            id: row.id
+          }
+        })
+        let count = 0;
+        if(row.startdate){
+          _row.startdate = timeToStr(row.startdate);
+          count++;
+        }
+        if(row.enddate){
+          _row.enddate = timeToStr(row.enddate);
+          count++;
+        }
+        if(row.signdate){
+          _row.signdate = timeToStr(row.signdate);
+          count++;
+        }
+        //如果存在则更新
+        if (target && count > 0) {
+          //delete _row.id;
+          target = await target.update({
+           // contract_status: warnStatus//合同状态2为即将到期
+            ..._row
+          })
+        }
+        else {
+          console.log('更新失败，目标不存在');
+        }
+
+      });
+
+    //console.log(' updatecount = ' + updatecount);
+
+  } catch (error) {
+    console.log(error.message);
+  }
+
+
+}
+
+//updateContract();
+
+transContract();
+
 
 
 
@@ -644,6 +714,16 @@ function scheduleRecurrenceRule() {
 
 
 scheduleRecurrenceRule();
+
+
+function getLastDay(year,month){
+
+  let _date = new Date(year,month,0);
+
+  let end = _date.getDate();
+
+  console.log(end);
+}
 
 
 function scheduleCancel() {

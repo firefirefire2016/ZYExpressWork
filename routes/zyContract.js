@@ -193,7 +193,12 @@ router.all('/startUse', async (req, res) => {
 
           let dataMonth = startMonth;
 
+         
+
+
           let date = new Date();
+
+          
 
           let currentMonth = parseInt(date.getMonth()) + 1
 
@@ -236,21 +241,53 @@ router.all('/startUse', async (req, res) => {
               if (year === currentYear && dataMonth > currentMonth) {
                 break;
               }
+
+              let _startDay = '00';
+
+              let _endDay = '00';
+    
+              if(startDay === 1){
+                _startDay = '01';
+              }else if(startDay < 10){
+                _startDay = '0' + startDay;
+                
+              }
+              else{
+                _startDay = startDay.toString();
+              }
+    
+              if(startDay === 1){
+                let enddate = new Date(year,dataMonth,0);
+                _endDay = enddate.toString();
+              }else if(startDay - 1 < 10){
+                _endDay = '0' + (startDay - 1);                
+              }
+              else{
+                _endDay = (startDay - 1).toString();
+              }
+
               let startdate, enddate;
               if (dataMonth < 10) {
-                startdate = year.toString() + '0' + dataMonth.toString() + '01';
+                startdate = year.toString() + '0' + dataMonth.toString() + _startDay;
               }
               else {
-                startdate = year.toString() + dataMonth.toString() + '01';
+                startdate = year.toString() + dataMonth.toString() + _startDay;
               }
-              if (dataMonth + 1 < 10) {
-                enddate = year.toString() + '0' + (dataMonth + 1).toString() + '01';
+
+              if(startDay === 1 && dataMonth < 10){
+                enddate = year.toString() + '0' + dataMonth.toString() + _endDay;
+              }
+              else if(startDay === 1 && dataMonth >= 10){
+                enddate = year.toString() + dataMonth.toString() + _endDay;
+              }
+              else if (dataMonth + 1 < 10) {
+                enddate = year.toString() + '0' + (dataMonth + 1).toString() + _endDay;
               }
               else {
-                enddate = year.toString() + (dataMonth + 1).toString() + '01';
-                if (dataMonth == 12) {
-                  enddate = (year + 1).toString() + '0101';
-                }
+                enddate = year.toString() + (dataMonth + 1).toString() + _endDay;
+                // if (dataMonth == 12) {
+                //   enddate = (year + 1).toString() + '0101';
+                // }
               }
 
               let newCollection = {
