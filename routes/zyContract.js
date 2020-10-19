@@ -258,7 +258,7 @@ router.all('/startUse', async (req, res) => {
     
               if(startDay === 1){
                 let enddate = new Date(year,dataMonth,0);
-                _endDay = enddate.toString();
+                _endDay = enddate.getDate().toString();
               }else if(startDay - 1 < 10){
                 _endDay = '0' + (startDay - 1);                
               }
@@ -441,15 +441,15 @@ router.all('/create', async (req, res) => {
     }
     else {
       if (startdate) {
-        startdate = common.timeToStr(startdate);
+        target.startdate = common.timeToStr(startdate);
       }
 
       if (enddate) {
-        enddate = common.timeToStr(enddate);
+        target.enddate = common.timeToStr(enddate);
       }
 
       if (signdate) {
-        signdate = common.timeToStr(signdate);
+        target.signdate = common.timeToStr(signdate);
       }
 
       let contract = await modelS.zycontract.create({
@@ -491,15 +491,15 @@ router.all('/update', async (req, res) => {
     //如果存在则更新
     if (target) {
       if (startdate) {
-        startdate = common.timeToStr(startdate);
+        newtarget.startdate = common.timeToStr(startdate);
       }
 
       if (enddate) {
-        enddate = common.timeToStr(enddate);
+        newtarget.enddate = common.timeToStr(enddate);
       }
 
       if (signdate) {
-        signdate = common.timeToStr(signdate);
+        newtarget.signdate = common.timeToStr(signdate);
       }
 
       target = await target.update({
