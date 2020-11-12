@@ -741,11 +741,10 @@ function scheduleRecurrenceRule() {
 }
 
 
+scheduleRecurrenceRule();
 
-//scheduleRecurrenceRule();
 
-
-changeDate();
+//changeDate();
 
 function scheduleCancel() {
 
