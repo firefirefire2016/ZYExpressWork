@@ -155,7 +155,7 @@ router.all('/update', async (req, res) => {
         }
 
         //假如产权更改前不为空置（即不能创建时选择），且目标合同id与原合同id不一致，说明要续租
-        if (target.property_status !== 1 && target.contractid !== contractid) {
+        if (target.property_status !== 1 && id !== contractid) {
 
           //把自己更改为目标合同的产权
           // target = await target.update({

@@ -52,6 +52,7 @@ module.exports = (sequelize, DataTypes) => {
     effectdate:DataTypes.STRING,//启用日期
     deldate:DataTypes.STRING,//删除日期
     rentarea:DataTypes.STRING,
+    tenantid:DataTypes.INTEGER,//租客ID
   }, {
 
     sequelize,

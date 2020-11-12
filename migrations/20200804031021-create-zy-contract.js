@@ -93,7 +93,6 @@ module.exports = {
         type: Sequelize.STRING
       },//滞纳金比例  
       rightid: {//产权id
-        allowNull: false,
         type: Sequelize.INTEGER
       },
       stopdate: {//停用日期
@@ -110,6 +109,9 @@ module.exports = {
       },
       rentarea:{
         type: Sequelize.STRING
+      },
+      tenantid: {//租户id
+        type: Sequelize.INTEGER
       },
     });
   },

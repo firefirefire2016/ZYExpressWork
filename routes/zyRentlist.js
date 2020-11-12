@@ -43,13 +43,13 @@ router.all('/create',async (req,res)=>{
 
     newTarget.status = 1;
 
-    if(startdate ){
-      startdate = common.timeToStr(startdate);
-    }
+    // if(startdate ){
+    //   startdate = common.timeToStr(startdate);
+    // }
 
-    if(enddate ){
-      enddate = common.timeToStr(enddate);
-    }
+    // if(enddate ){
+    //   enddate = common.timeToStr(enddate);
+    // }
 
     let target = await modelS.zyrentlist.create({  
         ...newTarget,        

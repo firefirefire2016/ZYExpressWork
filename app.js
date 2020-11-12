@@ -14,6 +14,7 @@ var zyWaterEleRouter = require('./routes/zyWaterEle');
 var zyDictRouter = require('./routes/zyDict');
 var zyProperty = require('./routes/zyProperty');
 var zyRentlist = require('./routes/zyRentlist');
+var zyCustomer = require('./routes/zyCustomer');
 var schedule = require('node-schedule');
 const { Op } = require("sequelize");
 
@@ -76,6 +77,7 @@ app.use('/zyWaterEle', zyWaterEleRouter);
 app.use('/zyDict', zyDictRouter);
 app.use('/zyProperty', zyProperty);
 app.use('/zyRentlist', zyRentlist);
+app.use('/zyCustomer', zyCustomer);
 
 
 const addRentByContract = async () => {
@@ -453,6 +455,8 @@ function keep1() {
   //   }
 }
 
+
+
 const updateContract = async () => {
 
   try {
@@ -629,7 +633,7 @@ const transContract = async () => {
 
     where.contract_status = {
       //[Op.or]: [0,1, 2, 3]//找到1已生效2即将到期3已到期的合同
-      [Op.ne]:-1,
+      [Op.ne]: -1,
     }
 
     let { count, rows } = await modelS.zycontract.findAndCountAll({
@@ -641,41 +645,41 @@ const transContract = async () => {
 
 
     rows.forEach(async row => {
-        if(row.id === 196){
-          console.log('');
+      if (row.id === 196) {
+        console.log('');
+      }
+      let _row = {};
+      let target = await modelS.zycontract.findOne({
+        where: {
+          id: row.id
         }
-        let _row = {};
-        let target = await modelS.zycontract.findOne({
-          where: {
-            id: row.id
-          }
+      })
+      let count = 0;
+      if (row.startdate) {
+        _row.startdate = timeToStr(row.startdate);
+        count++;
+      }
+      if (row.enddate) {
+        _row.enddate = timeToStr(row.enddate);
+        count++;
+      }
+      if (row.signdate) {
+        _row.signdate = timeToStr(row.signdate);
+        count++;
+      }
+      //如果存在则更新
+      if (target && count > 0) {
+        //delete _row.id;
+        target = await target.update({
+          // contract_status: warnStatus//合同状态2为即将到期
+          ..._row
         })
-        let count = 0;
-        if(row.startdate){
-          _row.startdate = timeToStr(row.startdate);
-          count++;
-        }
-        if(row.enddate){
-          _row.enddate = timeToStr(row.enddate);
-          count++;
-        }
-        if(row.signdate){
-          _row.signdate = timeToStr(row.signdate);
-          count++;
-        }
-        //如果存在则更新
-        if (target && count > 0) {
-          //delete _row.id;
-          target = await target.update({
-           // contract_status: warnStatus//合同状态2为即将到期
-            ..._row
-          })
-        }
-        else {
-          console.log('更新失败，目标不存在');
-        }
+      }
+      else {
+        console.log('更新失败，目标不存在');
+      }
 
-      });
+    });
 
     //console.log(' updatecount = ' + updatecount);
 
@@ -691,7 +695,32 @@ const transContract = async () => {
 //transContract();
 
 
+const changeDate = async() =>{
+  try {
+    let where = {};
 
+    let { count, rows } = await modelS.zyrentlist.findAndCountAll({
+      where,
+    })
+
+    for (let index = 0; index < rows.length; index++) {
+      let target = rows[index];
+
+      target.startdate = common.strToTime(target.startdate);
+
+      target.enddate = common.strToTime(target.enddate);
+
+      target = await target.update({
+        startdate: target.startdate,
+        enddate:target.enddate
+      })
+      
+    }
+
+  } catch (error) {
+
+  }
+}
 
 
 function scheduleRecurrenceRule() {
@@ -713,18 +742,10 @@ function scheduleRecurrenceRule() {
 
 
 
-scheduleRecurrenceRule();
+//scheduleRecurrenceRule();
 
 
-function getLastDay(year,month){
-
-  let _date = new Date(year,month,0);
-
-  let end = _date.getDate();
-
-  console.log(end);
-}
-
+changeDate();
 
 function scheduleCancel() {
 

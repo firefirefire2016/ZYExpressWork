@@ -96,7 +96,7 @@ router.all('/startUse', async (req, res) => {
       })
     }
 
-    //假如存在租金标准，则自动生成2020年1月开始的账单
+    //假如存在租金标准，则自动生成账单
     if (rentlists.count >= 1) {
 
       var rows = rentlists.rows;
