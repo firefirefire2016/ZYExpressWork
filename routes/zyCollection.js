@@ -319,7 +319,8 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
     let { billno, itemname, contractid, contract_status,
       status, contractno, startdate, enddate,
     } = req.body;
-    let { isOwe, needInvoice, nowrealrent, nowrealinvoice, overstate, rentdate, simpleaddress } = req.body;
+    let { isOwe, needInvoice, nowrealrent, nowrealinvoice, overstate, rentdate, simpleaddress,
+      accountingunit,tenant} = req.body;
 
     let offset = {};
 
@@ -335,6 +336,16 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
     if (contractno) {
       where2.contractno = {
         [Op.substring]: contractno
+      }
+    }
+
+    if (accountingunit) {
+      where2.accountingunit =  accountingunit
+    }
+
+    if (tenant) {
+      where2.tenant = {
+        [Op.substring]: tenant
       }
     }
 
@@ -460,6 +471,10 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
 
       item = item.dataValues;
 
+      item.accountingunit = row.accountingunit;
+
+      item.tenant = row.tenant;
+
       item.contractno = row.contractno;
 
       item.simpleaddress = row.zypropertyright.simpleaddress;
@@ -578,6 +593,7 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
 
       if(item.startdate){
         item.startdate = common.strToTime(item.startdate);
+        item.showdate = common.getShowdate(item.startdate);
       }
 
       if(item.enddate){
@@ -627,7 +643,8 @@ router.all('/list/:page/:limit', async (req, res) => {
     //limit=-1的话，先查找总数量，再进行查询
     let { page, limit } = req.params;
     let { billno, itemname, overstate, simpleaddress, rentdate, contractid, contract_status,
-      status, contractno, amount_select, invoice_select, startdate, enddate } = req.body;
+      status, contractno, amount_select, invoice_select, startdate, enddate,showdate,
+      accountingunit,tenant } = req.body;
 
     let offset = {};
 
@@ -642,6 +659,16 @@ router.all('/list/:page/:limit', async (req, res) => {
     if (contractno) {
       where2.contractno = {
         [Op.substring]: contractno
+      }
+    }
+
+    if (accountingunit) {
+      where2.accountingunit = accountingunit
+    }
+
+    if (tenant) {
+      where2.tenant = {
+        [Op.substring]: tenant
       }
     }
 
@@ -687,14 +714,17 @@ router.all('/list/:page/:limit', async (req, res) => {
       enddate = enddate.replace(/-/g, "");
     }
 
-    if (startdate != null) {
-      where.startdate = { [Op.gte]: startdate };
-    }
+    // if (startdate != null) {
+    //   where.startdate = { [Op.gte]: startdate };
+    // }
 
-    if (enddate != null) {
-      where.enddate = { [Op.lte]: enddate };
-    }
+    // if (enddate != null) {
+    //   where.enddate = { [Op.lte]: enddate };
+    // }
 
+    if(showdate){
+      where.showdate = showdate;
+    }
 
     if (billno) {
       where.billno = {
@@ -793,12 +823,15 @@ router.all('/list/:page/:limit', async (req, res) => {
       const row = rows[index].dataValues;
       if (row.startdate) {
         row.startdate = common.strToTime(row.startdate);
+        row.showdate = common.getShowdate(row.startdate);
       }
       if (row.enddate) {
         row.enddate = common.strToTime(row.enddate);
       }
 
       row.simpleaddress = row.zycontract.zypropertyright.simpleaddress;
+      row.accountingunit = row.zycontract.accountingunit;
+      row.tenant = row.zycontract.tenant;
 
       if (row.overstate === '1' || row.overstate === '2') {
         row.isWarn = true;

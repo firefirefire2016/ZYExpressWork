@@ -21,6 +21,15 @@ function getToday() {
 
 }
 
+function getShowdate(str){
+    //2020-10-10
+    if(!str.includes('-')){
+        return str;
+    }
+    str = str.substring(0, 7);
+    return str;
+}
+
 function strToTime(str) {
    // console.log(str);
 
@@ -48,4 +57,4 @@ function timeToStr(time) {
    return time.replace(/-/g, "");
 }
 
-module.exports = {getToday,strToTime,timeToStr}
+module.exports = {getToday,strToTime,timeToStr,getShowdate}
