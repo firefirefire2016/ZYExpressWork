@@ -456,8 +456,8 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
       //通过指定合同id，找到本期账单，通过降序找到最近的一期账单，结束日期和开始日期都为最大值
       let item = await modelS.zycollection.findOne({
         where,
-        offset,
-        limit,
+        // offset,
+        // limit,
 
         order: [
           [Sequelize.cast(Sequelize.col('enddate'), 'SIGNED'), 'DESC'],
@@ -613,7 +613,7 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
 
     let long = offset + limit;
 
-    for (let index = offset; index < offset + limit; index++) {
+    for (let index = offset; index < long; index++) {
       const element = targetRentlist[index];
       if (element) {
         newList.push(element);
