@@ -416,9 +416,9 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
       where.itemname = itemname
     }
 
-    if (overstate && overstate != 0) {
-      where.overstate = overstate
-    }
+    // if (overstate && overstate != 0) {
+    //   where.overstate = overstate
+    // }
     if (contractid) {
       where.contractid = contractid
     }
@@ -463,10 +463,17 @@ router.all('/mergelist/:page/:limit', async (req, res) => {
           [Sequelize.cast(Sequelize.col('enddate'), 'SIGNED'), 'DESC'],
           [Sequelize.cast(Sequelize.col('startdate'), 'SIGNED'), 'DESC']
         ]
-      })
+      })    
+      
 
       if (item === null) {
         continue
+      }
+
+      if (overstate && overstate != 0) {
+        if(item.overstate !== overstate){
+          continue
+        }
       }
 
       item = item.dataValues;
